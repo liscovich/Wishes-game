@@ -196,6 +196,8 @@ public class HksGameServiceImpl implements HksGameService {
 		result.put("rewardNotCaughtAsBetrayalSampling", fillZero(1 - slot.getRewardCaughtAsBetrayalSampling()));
 		result.put("notContinueSampling", fillZero(1 - slot.getSurvivalSampling()));
 		result.put("currentRound", slot.getCurrentRound());
+		result.put("maxBetrayPayoff", slot.getMaxBetrayPayoff());
+		result.put("mturkRate", slot.getGame().getExchangeRate());
 	}
 
 	@Override

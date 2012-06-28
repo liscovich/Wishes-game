@@ -392,8 +392,8 @@ function($){
 			obj.tempteeBonus = obj.returnData.tempteeBonus;	
 			obj.lowPayoffPoint = obj.returnData.rewardPayoff;
 			obj.highPayoffPoint = obj.returnData.currentBetrayPayoff;
-			obj.maxBetrayPayoff = obj.returnData.maxBetrayPayoff || 20;
-			obj.mturkRate = obj.returnData.mturkRate || 0.01;
+			obj.maxBetrayPayoff = obj.returnData.maxBetrayPayoff ;
+			obj.mturkRate = obj.returnData.mturkRate ;
 			
 			obj.blackMarkUpperLimit = obj.returnData.blackMarkUpperLimit;
 			obj.blackMarkCount = obj.returnData.blackMarkCount;
@@ -407,9 +407,7 @@ function($){
 			obj.endChance = obj.returnData.endChance;
 			
 			obj.survival = obj.returnData.survival;
-			
-			obj.tutorialStep = obj.returnData.tutorialStep;
-			};
+		};
 		
 		this.createCollectorBox=function(collectorBoxSettings){
 		var obj = this;
