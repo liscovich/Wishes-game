@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="keyword" content="Temptation Game" />
+<meta name="description" content="Temptation Game" />
+<meta name="robots" content="all" />
+<title>Temptation Game</title>
+<link rel="stylesheet" type="text/css" media="screen" href="css/style.css?t=<%= new java.util.Date().getTime() %>" />
+<script type="text/javascript" src="js/jquery-1.5.2.min.js?t=<%= new java.util.Date().getTime() %>"></script>
+<script type="text/javascript" src="js/raphael.js?t=<%= new java.util.Date().getTime() %>"></script>
+<script type="text/javascript" src="js/jquery.easing.1.3.js?t=<%= new java.util.Date().getTime() %>"></script>
+<script type="text/javascript" src="js/jquery.temptationgame.js?t=<%= new java.util.Date().getTime() %>"></script>
+<script type="text/javascript">
+//<![CDATA[
+$(document).ready(function(){
+$('#temptation_game').temptationgame();
+});
+//]]>
+</script>
+</head>
+<body>
+<div id="temptation_game">
+<div style="text-align:center;font-style:italic;font-size:11px;padding:80px 0;">Loading Game....</div>
+</div>
+</body>
+</html>

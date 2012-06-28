@@ -1,0 +1,3 @@
+# Module admin
+# RPC service class, partial path of RPC policy file
+edu.harvard.med.hks.gwt.admin.service.AdminService, 3BC50947C604EA6DBD46B02C36FEDFE1.gwt.rpc

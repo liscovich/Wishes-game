@@ -1,0 +1,626 @@
+html {
+	height: 100%;
+}
+body {
+	height: 100%;
+	font-family: Verdana, arial, helvetica, sans-serif;
+	font-size: 12px;
+	color: #444444;
+	line-height: 17px;
+	margin: 0;
+	padding: 0;
+}
+p {
+	margin: 0;
+	padding: 5px 0;
+	clear:left;
+}
+
+button {
+	margin: 0;
+	line-height:17px;
+}
+.infoTable {
+	border-collapse: collapse;
+	border: 1px solid black;
+	clear: left;
+}
+
+.infoTable td {
+	padding: 2px;
+	padding-left: 2px;
+}
+.infoTable tr:first-child {
+	background-color: #f5f8fa;
+	font-weight: bold;
+	text-align: center;
+}
+#errorMessage {
+	color:red;
+}
+#tutorial .container {
+	width:400px;
+	margin: 0 auto;
+}
+#help {
+	width:300px;
+	float:right;
+	clear:right;
+	margin-top: 20px;
+}
+.titlel {
+	background: url("../images/bordergrey.png") 0 0 transparent;
+	height: 33px;
+	width: 25px;
+	float: left;
+}
+
+.titler {
+	background: url("../images/bordergrey.png") right 0 transparent;
+	height: 33px;
+	width: 25px;
+	float: right;
+}
+
+.title {
+background: none repeat scroll 0 0 #515151;
+color: white;
+font-size: 18px;
+font-weight: bold;
+height: 33px;
+line-height: 33px;
+margin: 0 25px;
+padding: 0 0 0;
+text-align: center;
+}
+.bordersidel {
+	background: #f5f5f5;
+	border: 1px solid black;
+	border-width: 0 0 0 1px;
+	width: 15px;
+	height: 100%;
+	display: table-cell;
+}
+
+.bordersider {
+	background: #f5f5f5;
+	border: 1px solid black;
+	border-width: 0 1px 0 0;
+	width: 15px;
+	height: 100%;
+	display: table-cell;
+}
+.borderside {
+	display: table;
+	width: 100%;
+}
+#message {
+	min-height: 132px;
+	padding: 10px 0;
+	background: #f5f5f5;
+	border: 0px;
+}
+.navil {
+	background: url("../images/bordergrey.png") 0 bottom transparent;
+	height: 33px;
+	width: 25px;
+	float: left;
+}
+
+.navir {
+	background: url("../images/bordergrey.png") right bottom transparent;
+	height: 33px;
+	width: 25px;
+	float: right;
+}
+
+.navi {
+	padding: 5px 0 10px;
+	background: #515151;
+	height: 18px;
+	margin: 0 25px;
+	text-align: center;
+	color:white;
+}
+.navi #left {
+	float: left;
+	cursor:pointer;
+}
+.navi #right {
+	float: right;
+	cursor:pointer;
+}
+.navi #center {
+	cursor:pointer;
+}
+.clear {
+	clear: both;
+}
+.begin {
+	color: #999999;
+	float: right;
+	font-size: 10px;
+	font-weight: bold;
+	line-height: 27px;
+}
+.steps {
+	color: #ffffff;
+	font-size: 10px;
+	line-height: 27px;
+	text-align: center;
+	width: 30px;
+	margin: 0 auto;
+}
+.slotMachine .number {
+left: 7px;
+position: absolute;
+top: 28px;
+}
+#slot1, #slot2, #slot3 {
+	background:#ffffff;
+	border: 1px solid #909090;
+	color: #909090;
+	font-size: 17pt;
+	font-weight: bold;
+	margin: 0 3px;
+	padding: 18px 18px;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+}
+.slotMachine.active #slot1, .slotMachine.active #slot2, .slotMachine.active #slot3 {
+	color:black;
+}
+.slotMachine {
+	position:relative;
+	height:133px;
+}
+.slotMachine #header1 {
+font-size:10pt;
+margin:0 auto;
+background-color: white;
+color:#444444;
+padding: 10px 0 0 10px;
+}
+.slotMachine #header2 {
+text-align: center;
+font-size:10pt;
+height: 30px;
+line-height:30px;
+width:201px;
+margin:0 auto;
+background-color:transparent;
+color:#444444;
+}
+.slotMachine #middle1 {
+background-color: white;
+height: 105px;
+margin: 0 auto;
+position: relative;
+width: 216px;
+-moz-border-radius: 0 0 10px 10px;
+-webkit-border-radius: 0 0 10px 10px;
+border-radius:0 0 10px 10px;
+}
+.slotMachine #middle2 {
+height: 110px;
+margin:0 auto;
+position:relative;
+background-color:transparent;
+}
+.slotMachine .scale {
+border-bottom: 1px dashed #909090;
+position:absolute;
+left:0;
+top:0;
+}
+.slotMachine .wheel {
+	position:absolute;
+	right:0;
+	top:0;
+	padding: 14px 8px 14px 0;
+}
+.slotMachine .wheelOuter {
+display: none;
+height: 154px;
+left: -15px;
+position: absolute;
+right: 0;
+top: -11px;
+width: 468px;
+z-index:6;
+}
+.slotMachine .wheelInner {
+background: url("../images/hole.png") no-repeat scroll 0 0 transparent;
+border: 1px solid #909090;
+height: 144px;
+width: 466px;
+-moz-border-radius: 10px 10px 0 0;
+-webkit-border-radius: 10px 10px 0 0;
+border-radius: 10px 10px 0 0;
+border-width:2px 2px 0 2px;
+}
+.slotMachine#sm_betray .wheelOuter, .slotMachine#sm_reward .wheelOuter, .slotMachine#sm_notTrust .wheelOuter {
+top: -333px;
+}
+.slotMachine .scaleOuter {
+position: relative;
+}
+.slotMachine .scaleInner {
+position: relative;
+margin-left:-11px;
+}
+.slotMachine.inactive .realChance {
+	display:none;
+}
+.slotMachine .scaleYes, .slotMachine .scaleNo {
+display: block;
+height: 5px;
+margin-left: 43px;
+position: absolute;
+top: 52px;
+}
+.slotMachine .scaleYes, .slotMachine .scaleNo {
+background: #909090;
+}
+.slotMachine .scaleThreshold {
+width:3px;
+background: white;
+height:5px;
+position: absolute;
+top: 52px;
+margin-left: 43px;
+}
+.slotMachine.active .scaleYes.occur, .slotMachine.active .scaleNo.occur {
+background: #000000;
+}
+.slotMachine .yes, .slotMachine .no {
+color: #7f7f7f;
+font-size: 12pt;
+}
+.slotMachine.active .yes.occur, .slotMachine.active .no.occur {
+color: #000000;
+font-weight:bold;
+}
+.slotMachine #curlyYes, .slotMachine #curlyNo, .slotMachine #curlyYes, .slotMachine #curlyNo {
+opacity:.3;
+}
+.slotMachine.active #curlyYes.occur, .slotMachine.active #curlyNo.occur {
+opacity:1;
+}
+.slotMachine .yes {
+position: absolute;
+font-size: 10pt;
+top: 70px;
+margin-left: 28px;
+text-align:center;
+width:30px;
+}
+.slotMachine .realChance {
+background: url("../images/arrow2.png") no-repeat scroll center bottom transparent;
+font-size: 8pt;
+height: 46px;
+margin-left: 29px;
+position: absolute;
+text-align: center;
+top: 4px;
+width: 30px;
+font-weight:bold;
+}
+.slotMachine .no {
+top: 70px;
+position: absolute;
+font-size: 10pt;
+margin-left: 28px;
+text-align:center;
+width:30px;
+}
+.slotMachine .curly {
+top: 58px;
+height:10px;
+position: absolute;
+margin-left: 43px;
+}
+.slotMachine .curly .verticalBar {
+display:none;
+text-align:center;
+line-height: 10px;
+}
+.slotMachine .curly .verticalBar .bar {
+border-color: black;
+border-style: solid;
+display: block;
+height: 10px;
+margin: 0 auto;
+width: 1px;
+}
+.slotMachine #curlyYes.curly .verticalBar .bar { 
+border-width: 0 1px 0 0;
+}
+.slotMachine #curlyNo.curly .verticalBar .bar { 
+border-width: 0 0 0 1px;
+}
+.slotMachine #curlyYes.curly.occur .verticalBar .bar {
+border-width: 0 2px 0 0;
+width: 2px;
+}
+.slotMachine #curlyNo.curly.occur .verticalBar .bar {
+border-width: 0 0 0 2px;
+width: 2px;
+}
+.slotMachine .curly.vertical .verticalBar {
+display:inherit;
+}
+.slotMachine .curly.vertical .left, .slotMachine .curly.vertical .right, .slotMachine .curly.vertical .center {
+display:none;
+}
+.slotMachine .curly .left {
+	background: url("../images/curly.png") no-repeat scroll left center transparent;
+	width:5px;
+	height:10px;
+	float:left;
+}
+.slotMachine .curly .right {
+	float:right;
+	height:10px;
+	width:5px;
+	background: url("../images/curly.png") no-repeat scroll right center transparent;
+}
+.slotMachine .curly .center {
+	height:10px;
+	background: url("../images/curly.png") no-repeat scroll center center transparent;
+	margin:0 5px;
+}
+.slotMachine .thresholdChance {
+font-size: 8pt;
+margin-left: 28px;
+position: absolute;
+top: 30px;
+color: #7f7f7f;
+width:30px;
+text-align:center;
+}
+.slotMachine .upper {
+position: absolute;
+font-size: 8pt;
+right: 7px;
+top: 45px;
+color: #7f7f7f;
+}
+.slotMachine .lower {
+color: #7f7f7f;
+top: 45px;
+left: 7px;
+position: absolute;
+font-size: 8pt;
+}
+.slotMachine .spinButton {
+position: absolute;
+text-align: center;
+top: 79px;
+width: 100%;
+}
+#reward_ticket.heading {
+left: 286px;
+position: absolute;
+top: 21px;
+width: 220px;
+height: 325px;
+}
+#betray_ticket.heading {
+left: 523px;
+position: absolute;
+top: 21px;
+width: 220px;
+height: 325px;
+}
+.trusted {
+position: absolute;
+top: 21px;
+z-index:5;
+}
+.trusted .outer {
+background: url("../images/hole_survive.png") no-repeat scroll -22px -19px transparent;
+border: 1px solid #909090;
+color: #515151;
+margin: 0 auto;
+top: 21px;
+width: 240px;
+height: 450px;
+border-width:2px 2px 0 2px;
+-moz-border-radius: 10px 10px 0 0;
+-webkit-border-radius: 10px 10px 0 0;
+border-radius: 10px 10px 0 0;
+}
+#notTrust.trusted .outer {
+background: url("../images/hole_survive_notTrust.png") no-repeat scroll -22px -19px transparent;
+height: 317px;
+}
+.trusted .inner {
+margin: 0 10px;
+-moz-border-radius: 10px;
+-webkit-border-radius: 10px;
+border-radius: 10px;
+}
+.trusted .inner #sm_survive {
+margin-top: 219px;
+}
+.trusted .inner .slotMachine .scale {
+border-bottom:none;
+border-top:1px dashed #909090;
+}
+.trusted .overinner {
+position:absolute;
+-moz-border-radius: 10px;
+-webkit-border-radius: 10px;
+border-radius: 10px;
+border: 1px solid #909090;
+margin: 0 10px;
+top:61px;
+height:353px;
+background: url("../images/inner_shadow.png") no-repeat scroll -1px -1px transparent;
+width:216px;
+}
+#notTrust.trusted .overinner {
+height:221px;
+}
+.trusted #header {
+font-size: 18px;
+height: 58px;
+color: #515151;
+line-height: 58px;
+margin: 0 auto;
+text-align: center;
+}
+#point {
+background: none repeat scroll 0 0 #F5F5F5;
+border-color: #909090;
+border-style: solid;
+border-width: 0 0 0 2px;
+height: 100%;
+padding: 0 0 0 15px;
+float:right;
+width: 211px;
+}
+#point #pointOuterContainer {
+font-size: 20pt;
+height: 70px;
+line-height: 45px;
+text-align: center;
+}
+#point #pointContainer {
+font-weight:bold;
+}
+#blackMarkBar {
+width: 220px;
+}
+#blackMarkBar .blackMark, #blackMarkBar .blackMarkCell {
+border: 1px dashed #909090;
+float: left;
+height: 43px;
+margin: 10px 4px 0 0;
+width: 34px;
+-moz-border-radius: 5px;
+-webkit-border-radius: 5px;
+border-radius: 5px;
+}
+#blackMarkBar .blackMark {
+border: 1px solid #515151;
+background:#515151;
+-moz-border-radius: 6px;
+-webkit-border-radius: 6px;
+border-radius: 6px;
+}
+.heading #header {
+background-color: #F5F5F5;
+border: 2px solid #909090;
+color: #515151;
+font-size: 15px;
+height: 30px;
+line-height: 60px;
+margin: 0 auto;
+text-align: center;
+-moz-border-radius: 10px 10px 0 0;
+-webkit-border-radius: 10px 10px 0 0;
+border-radius: 10px 10px 0 0;
+}
+.heading #middle {
+background-color: #FFFFFF;
+border-width:0 2px;
+border-color:#909090;
+border-style:dashed solid;
+padding: 10px;
+}
+.borderless.heading #middle {
+border-color:#909090 white;
+}
+.borderless.heading #middle .slotMachine .scale {
+border-bottom:none;
+}
+#shadowFooter #left {
+background: url("../images/shadow_y.png") no-repeat scroll left center transparent;
+height:14px;
+width: 11px;
+float:left;
+}
+#shadowFooter #right {
+background: url("../images/shadow_y.png") no-repeat scroll right center transparent;
+height:14px;
+width: 11px;
+float:right;
+}
+#shadowFooter #center {
+background: url("../images/shadow_y.png") no-repeat scroll center center transparent;
+height:14px;
+margin:0 11px;
+}
+.trusted #shadowFooter #left {
+background: url("../images/shadow_y_f5f5f5_2px.png") no-repeat scroll left center transparent;
+}
+.trusted #shadowFooter #right {
+background: url("../images/shadow_y_f5f5f5_2px.png") no-repeat scroll right center transparent;
+}
+.trusted #shadowFooter #center {
+background: url("../images/shadow_y_f5f5f5_2px.png") no-repeat scroll center center transparent;
+}
+.slotMachine .wheelOuter #shadowFooter {
+	width:470px;
+}
+.slotMachine .wheelOuter #shadowFooter #left {
+background: url("../images/shadow_y_f5f5f5_2px.png") no-repeat scroll left center transparent;
+height:14px;
+width: 12px;
+float:left;
+}
+.slotMachine .wheelOuter #shadowFooter #right {
+background: url("../images/shadow_y_f5f5f5_2px.png") no-repeat scroll right center transparent;
+height:14px;
+width: 12px;
+float:right;
+}
+.slotMachine .wheelOuter #shadowFooter #center {
+background: url("../images/shadow_y_f5f5f5_2px.png") no-repeat scroll center center transparent;
+height:14px;
+margin:0 12px;
+}
+.ticket .payoff, .trusted .payoff {
+padding: 10px 0 0 10px;
+color: #444444;
+font-size: 10pt;
+border-top: 1px dashed #909090;
+}
+.ticket.borderless .payoff {
+border-top: 0 none;
+}
+.trusted .payoff {
+border-top: none;
+}
+.ticket .payoffContent, .trusted .payoffContent {
+height: 55px;
+font-size: 14pt;
+line-height: 50px;
+padding-bottom: 5px;
+text-align: center;
+border-bottom: 1px dashed #909090;
+}
+.trusted .payoffContent {
+border-bottom: none;
+}
+.ticket .chooseButton, .trusted .redeemButton {
+text-align: center;
+width: 238px;
+display:table-cell;
+vertical-align: middle;
+height: 48px;
+}
+.ticket.heading #header {
+font-size: 18px;
+height: 56px;
+width:216px;
+position: absolute;
+}
+.ticket.heading #middle {
+padding: 0;
+position:relative;
+margin: 60px 0 0;
+}

@@ -1,0 +1,199 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>edu.harvard.med.hks</groupId>
+	<artifactId>hks</artifactId>
+	<version>1.0</version>
+	<packaging>war</packaging>
+
+	<name>hks</name>
+	<url>http://50.56.84.29/hks</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		
+		<gson.version>1.7.1</gson.version>
+		<servlet-api.version>2.5</servlet-api.version>
+		<spring.version>3.0.5.RELEASE</spring.version>
+		<commons-dbcp.version>1.4</commons-dbcp.version>
+		<commons-lang.version>2.6</commons-lang.version>
+		<log4j.version>1.2.16</log4j.version>
+		<mysql-connector-java.version>5.1.16</mysql-connector-java.version>
+		<slf4j.version>1.6.1</slf4j.version>
+		<hibernate-core.version>3.5.1-Final</hibernate-core.version>
+		<hibernate-validator.version>4.0.2.GA</hibernate-validator.version>
+		<log4j.version>1.2.16</log4j.version>
+		<aspectj.version>1.6.10</aspectj.version>
+		<javassist.version>3.8.0.GA</javassist.version>
+		
+		<!-- Plugins version -->
+		<maven-compiler-plugin.version>2.3.2</maven-compiler-plugin.version>
+		<jetty-maven-plugin.version>7.2.1.v20101111</jetty-maven-plugin.version>
+		<maven-eclipse-plugin.version>2.8</maven-eclipse-plugin.version>
+		<maven-surefire-plugin.version>2.7.1</maven-surefire-plugin.version>
+	 <netbeans.hint.deploy.server>Tomcat60</netbeans.hint.deploy.server>
+	</properties>
+
+	<dependencies>
+		<!-- Provided -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>${servlet-api.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- Runtime -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>${mysql-connector-java.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		
+		<!-- Compile -->
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>${gson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		
+		<!-- For logging -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>${slf4j.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${slf4j.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- For database -->
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>${commons-dbcp.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-annotations</artifactId>
+			<version>${hibernate-core.version}</version>
+		</dependency>
+		<!-- For validator annotations in model -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>${hibernate-validator.version}</version>
+		</dependency>
+		<!-- For AOP -->
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<version>${aspectj.version}</version>
+		</dependency>
+		<!-- For auto scanning model class -->
+		<dependency>
+			<groupId>javassist</groupId>
+			<artifactId>javassist</artifactId>
+			<version>${javassist.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>${commons-lang.version}</version>
+		</dependency>
+	</dependencies>
+	<repositories>
+		<repository>
+			<id>Main</id>
+			<url>http://repo1.maven.org/maven2</url>
+		</repository>
+		<repository>
+			<id>Jboss</id>
+			<url>http://repository.jboss.org/maven2</url>
+		</repository>
+	</repositories>
+	<build>
+		<!-- Dont want the version to be part of the generated war file name -->
+		<finalName>${project.artifactId}</finalName>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>${jetty-maven-plugin.version}</version>
+				<configuration>
+					<reload>manual</reload>
+					<webAppConfig>
+						<contextPath>/hks</contextPath>
+						<!-- Tell jetty to use generated web.xml location -->
+						<descriptor>src/main/dev/web.xml</descriptor>
+					</webAppConfig>
+					<webAppSourceDirectory>src/main/webapp</webAppSourceDirectory>
+					<scanTargets>
+						<scanTarget>src/main/java</scanTarget>
+						<scanTarget>src/main/resources</scanTarget>
+						<scanTarget>src/main/webapp/WEB-INF</scanTarget>
+					</scanTargets>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<version>${maven-eclipse-plugin.version}</version>
+				<configuration>
+					<downloadSources>true</downloadSources>
+					<downloadJavadocs>true</downloadJavadocs>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven-surefire-plugin.version}</version>
+				<configuration>
+					<skipTests>true</skipTests>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
