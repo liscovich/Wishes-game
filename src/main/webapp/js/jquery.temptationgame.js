@@ -265,7 +265,7 @@ function($){
 		<div id="roulette2" style="width:100px;height:100px"></div>\
 		<div class="label">If the arrow points to “No”, the game ends</div>\
 		</div>',
-		'<div class="label">Here there is a ' + Math.round(100 - obj.endChance * 100) + '% chance of the game continuing and a ' + Math.round(obj.endChance * 100) + '% chance of the game ending.</div>'],
+		'<div class="label">Here, there is a ' + Math.round(100 - obj.endChance * 100) + '% chance of the game continuing and a ' + Math.round(obj.endChance * 100) + '% chance of the game ending.</div>'],
 		'figure' : '',
 		nextButtonText : 'I see! »',
 		prevButtonText : '« Back'
@@ -276,7 +276,7 @@ function($){
 					'<li>You play multiple rounds.</li>' +
 					'<li>In each round, you choose either the Low Payoff  card that gives you ' + ( obj.lowPayoffPoint || "Low Payoff" ) + ' points, or the High Payoff card that gives you between ' + ( obj.lowPayoffPoint || "Low Payoff" ) + ' and ' + (( obj.maxBetrayPayoff + obj.lowPayoffPoint )*1) + ' points but uses up one wish.</li>' +
 					'<li>If you use up all of your wishes, the game ends.</li>' +
-					'<li>After every round, you spin the wheel of fortune, which can also end the game. In your game, there is a ' + Math.round(100 - obj.endChance * 100) + '% chance that the game continues and a ' + Math.round(obj.endChance * 100) + '% chance it ends.</li>' +
+					'<li>After every round, you spin the wheel of fortune, which can also end the game. There is a ' + Math.round(100 - obj.endChance * 100) + '% chance that the game continues and a ' + Math.round(obj.endChance * 100) + '% chance it ends.</li>' +
 					'<li>Your goal is to earn as many points as you can before the game ends. You do not get any points for left-over wishes.</li>' +
 					'<li>At the end of the game, we will convert your points into US dollars at the rate of $' + (obj.mturkRate || "-mturkRate-") +' per point, and add them to your MTurk account.</li>' +
 					'</ol></div>'],
@@ -294,22 +294,23 @@ function($){
 		]; };
 		var obj = this;
 		this.init = function(){
-		var obj=this;
-				obj.updateClient();
-				//obj.tutorial(0);
-				};
+		  var obj=this;
+			obj.updateClient();
+		};
+
 		this.initGame = function(){
-				obj.collectorBox = obj.createCollectorBox();
-				obj.choicePanel = obj.createChoicePanel();
-				obj.survivalPanel = obj.createSurvivalPanel();
-				elem.html('');
-				elem.append(obj.collectorBox,obj.choicePanel,obj.survivalPanel);	
-				obj.createWheelOfFortune('wheel_of_fortune','find_out');
-				$('#collectorbox_table').css({
-					'top' : $('#collectorbox_front').position().top + $('#collectorbox_front').outerHeight() -20
-					});
-				obj.updateBlackMarks();
-				};
+      obj.collectorBox = obj.createCollectorBox();
+      obj.choicePanel = obj.createChoicePanel();
+      obj.survivalPanel = obj.createSurvivalPanel();
+      elem.html('');
+      elem.append(obj.collectorBox,obj.choicePanel,obj.survivalPanel);	
+      obj.createWheelOfFortune('wheel_of_fortune','find_out');
+      $('#collectorbox_table').css({
+        'top' : $('#collectorbox_front').position().top + $('#collectorbox_front').outerHeight() -20
+        });
+      obj.updateBlackMarks();
+		};
+
 		this. getPostData = function(action) {
 			obj.isNext = $.getUrlVar('next');  
 			var result = {
@@ -321,67 +322,70 @@ function($){
 				  "workerId" : obj.workerId ? decodeURIComponent(obj.workerId) : "",
 				  "workerNum" : obj.workerNum ? decodeURIComponent(obj.workerNum) : "",
 				  "next":obj.isNext
-			  };
-			  action && (result["a"] = action);
-			  obj.tutorialStep && (result["tutorialStep"] = encodeURIComponent(obj.tutorialStep));
-			  return result;
-			};
+      };
+      action && (result["a"] = action);
+      obj.tutorialStep && (result["tutorialStep"] = encodeURIComponent(obj.tutorialStep));
+      return result;
+	  };
+
 		this.updateClient = function(){
-			  $.ajax({
-				type: "POST",
-				url: "game",
-				data: obj.getPostData("update"),
-				success: function(returnData){
-				  obj.processReturnedData(returnData);
-				},
-				error: function(returnData, textStatus, errorThrown){
-				  alert('Error communicating to server');
-				}
-			  });
-			};
+      $.ajax({
+        type: "POST",
+        url: "game",
+        data: obj.getPostData("update"),
+        success: function(returnData){
+          obj.processReturnedData(returnData);
+        },
+        error: function(returnData, textStatus, errorThrown){
+          alert('Error communicating to server');
+        }
+      });
+    };
 		this.processReturnedData = function(returnData) {
-			  obj.returnData = returnData;
-			  if (obj.currentStatus != obj.returnData.status) {
-				obj.syncWithServer();
-				switch (obj.returnData.status) {
-				case "TUTORIAL":
-					obj.tutorial(0);
-					//obj.updateClient();
-				  break;
-				case "PLAY":
-				  if (obj.returnData.blackMarkCount < obj.returnData.blackMarkUpperLimit) {
-					if($('#collectorbox').size() == 0)obj.initGame();
-					obj.showChoicePanel();
-				  } else {
-				    if($('#collectorbox').size() == 0)obj.initGame();
-					//obj.endChanceAck();
-					obj.gameOver();
-				  }
-				  break;
-				case "PAYOFF":
-				  if($('#collectorbox').size() == 0)obj.initGame();
-				  obj.updateBlackMarks();
-				  obj.createWheelOfFortune('wheel_of_fortune','find_out');
-				  if (obj.returnData.blackMarkCount < obj.returnData.blackMarkUpperLimit) {
-					  obj.showSurvivalPanel();
-					  }
-				  else{
-					  obj.nextRound();
-					  }
-				  break;
-				case "FINISHED":
-				  if($('#collectorbox').size() == 0)obj.initGame();
-				  obj.gameOver();
-				  break;
-				case "THANKS":
-				  alert('thanks');
-				  break;
-				case "DROPPED":
-				  alert('The game you are trying to play does not exist anymore');
-				  break;
-				}
-			  } 
-			};
+      obj.returnData = returnData;
+      //hack, should find a proper way
+      var reinitGame = obj.currentStatus == 'PRACTICE' ;
+      if (obj.currentStatus != obj.returnData.status) {
+        obj.syncWithServer();
+        switch (obj.returnData.status) {
+        case "TUTORIAL":
+          obj.tutorial(0);
+          break;
+        case "PLAY":
+          if (obj.returnData.blackMarkCount < obj.returnData.blackMarkUpperLimit) {
+            if($('#collectorbox').size() == 0 || reinitGame) {
+              obj.initGame();
+            }
+            obj.showChoicePanel();
+          } else {
+            if($('#collectorbox').size() == 0) obj.initGame();
+            obj.gameOver();
+          }
+          break;
+        case "PAYOFF":
+          if($('#collectorbox').size() == 0)obj.initGame();
+          obj.updateBlackMarks();
+          obj.createWheelOfFortune('wheel_of_fortune','find_out');
+          if (obj.returnData.blackMarkCount < obj.returnData.blackMarkUpperLimit) {
+            obj.showSurvivalPanel();
+            }
+          else{
+            obj.nextRound();
+            }
+          break;
+        case "FINISHED":
+          if($('#collectorbox').size() == 0) obj.initGame();
+          obj.gameOver();
+          break;
+        case "THANKS":
+          alert('thanks');
+          break;
+        case "DROPPED":
+          alert('The game you are trying to play does not exist anymore');
+          break;
+        }
+      } 
+    };
 		
 		this.syncWithServer = function(){
 			obj.version = obj.returnData.version;
@@ -392,6 +396,7 @@ function($){
 			obj.tempteeBonus = obj.returnData.tempteeBonus;	
 			obj.lowPayoffPoint = obj.returnData.rewardPayoff;
 			obj.highPayoffPoint = obj.returnData.currentBetrayPayoff;
+
 			obj.maxBetrayPayoff = obj.returnData.maxBetrayPayoff ;
 			obj.mturkRate = obj.returnData.mturkRate ;
 			
@@ -409,48 +414,48 @@ function($){
 			obj.survival = obj.returnData.survival;
 		};
 		
-		this.createCollectorBox=function(collectorBoxSettings){
-		var obj = this;
-		var settings = $.extend({
-			visible : true,
-			title : false,
-			content : true,
-			downArrow : false,
-			otherPlayer : false
-			}, collectorBoxSettings || {});
-			
-			var $collectorBox = $('<div id="collectorbox"/>');
-			var $collectorBoxFront = $('<div id="collectorbox_front"/>');
-			var $collectorBoxBack = $('<div id="collectorbox_back"/>');
-			var $collectorBoxTable = $('<div id="collectorbox_table"/>');
-			
-				var $label = $('<div class="label"/>');
-				$label.text(obj.collectorBoxLabel);
-				
-				var $earnings = $('<div class="earnings"/>');
-				$earnings.html('<span class="earning">'+ ( obj.tempteeBonus || "Earnings" ) + "</span> " + obj.units);
-				
-				var $blackMarks = $('<div class="blackmarks"/>');
-					var $blackMarksLabel = $('<div class="label"/>');
-					$blackMarksLabel.text(obj.blackMarksLabel);
-					
-					var $blackMarksCount = $('<div class="label" id="blackmark_count"/>');
-					$blackMarksCount.text('('+ obj.blackMarkCount +'/'+ obj.blackMarkUpperLimit +')');
-					
-					var $blackMarkBars = obj.createBlackMarkGUI();
-					
-					$blackMarks.append($blackMarksLabel,$blackMarksCount,$blackMarkBars);
-				//create down Arrow
-				var $downArrow = $('<div id="down_arrow"><img src="images/down_arrow.png"></div>');
-				
-				if(settings.content)$collectorBoxFront.append($label,$earnings,$blackMarks);
-				else $collectorBoxFront.append('<div class="blank"></div>');
-				//append Down Arrow
-				if(settings.downArrow)$collectorBox.append($downArrow);
-				if(settings.title)$collectorBox.append('<div class="figure-label">Your Wallet</div>');
-				$collectorBox.append($collectorBoxTable,$collectorBoxBack,$collectorBoxFront);
+		this.createCollectorBox = function(collectorBoxSettings) {
+      var obj = this;
+      var settings = $.extend({
+        visible : true,
+        title : false,
+        content : true,
+        downArrow : false,
+        otherPlayer : false
+        }, collectorBoxSettings || {});
+        
+      var $collectorBox = $('<div id="collectorbox"/>');
+      var $collectorBoxFront = $('<div id="collectorbox_front"/>');
+      var $collectorBoxBack = $('<div id="collectorbox_back"/>');
+      var $collectorBoxTable = $('<div id="collectorbox_table"/>');
+      
+      var $label = $('<div class="label"/>');
+      $label.text(obj.collectorBoxLabel);
+      
+      var $earnings = $('<div class="earnings"/>');
+      $earnings.html('<span class="earning">'+ ( obj.tempteeBonus || "Earnings" ) + "</span> " + obj.units);
+      
+      var $blackMarks = $('<div class="blackmarks"/>');
+        var $blackMarksLabel = $('<div class="label"/>');
+        $blackMarksLabel.text(obj.blackMarksLabel);
+        
+        var $blackMarksCount = $('<div class="label" id="blackmark_count"/>');
+        $blackMarksCount.text('('+ obj.blackMarkCount +'/'+ obj.blackMarkUpperLimit +')');
+        
+        var $blackMarkBars = obj.createBlackMarkGUI();
+        
+        $blackMarks.append($blackMarksLabel,$blackMarksCount,$blackMarkBars);
+      //create down Arrow
+      var $downArrow = $('<div id="down_arrow"><img src="images/down_arrow.png"></div>');
+      
+      if(settings.content)$collectorBoxFront.append($label,$earnings,$blackMarks);
+      else $collectorBoxFront.append('<div class="blank"></div>');
+      //append Down Arrow
+      if(settings.downArrow)$collectorBox.append($downArrow);
+      if(settings.title)$collectorBox.append('<div class="figure-label">Your Wallet</div>');
+      $collectorBox.append($collectorBoxTable,$collectorBoxBack,$collectorBoxFront);
 			return $collectorBox;
-			};
+    };
 			
 		this.createBlackMarkGUI=function(){
 		var obj = this;
@@ -472,7 +477,7 @@ function($){
 		this.createSurvivalPanel= function(){
 		var obj = this;
 			var $survivalPanel = $('<div id="survival_panel"/>');
-				var $anotherRoundMessage = $("<div class='label'>Another Round ?</div>");
+				var $anotherRoundMessage = $("<div class='label'>Another Round?</div>");
 				var $wheelOfFortune = $("<div id='wheel_of_fortune'></div>");
 				var $findOutButton = $('<button id="find_out">Find Out</button>');
 				
@@ -825,37 +830,60 @@ function($){
 			};
 			
 		this.gameOver = function(){
-			var $gameOverMessage = $('<div id="game_over"><h4>Game Over</h4><div class="label">Thank you for playing.</div><div class="label">You\'ve earned <b>'+ obj.tempteeBonus +' points!</b></div><div class="label">Your earnings will be deposited to your MTurk account within 14 business days.</div><div class="label"><button id="play_again">Play Again</button><button id="quit">Quit</button></div></div>');
-			
-			obj.choicePanel.html($gameOverMessage);
+      if(obj.returnData.practice) {
+			  var $gameOverMessage = $('<div id="game_over"><h4>Practice game is over</h4><div class="label">You\'ve earned ' + obj.returnData.tempteeBonus +' points!</div><div class="label">Now you will play the real game.</div><div class="label"><br/><button id="play_now">Begin</button></div></div>');
+			  obj.choicePanel.html($gameOverMessage) ;
+			  obj.showChoicePanel();
+			   //onclick for 'Play again' button
+			   $('#play_now').click(function() {
+           obj.currentStatus = 'PRACTICE' ;
+           obj.finishPractice();
+			   });
+        return ;
+      }
+			var $gameOverMessage = $('<div id="game_over"><h4>Game Over</h4><div class="label">Thank you for playing.</div><div class="label">You\'ve earned <b>'+ obj.returnData.tempteeBonus +' points!</b></div><div class="label">Your earnings will be deposited to your MTurk account within 14 business days.</div><div class="label"><button id="play_again">Play Again</button><button id="quit">Quit</button></div></div>');
+			obj.choicePanel.html($gameOverMessage) ;
 			obj.showChoicePanel();
-			
 			   //onclick for 'Play again' button
 			   $('#play_again').click(function(){
-				   var url = window.location.href+'&points='+obj.tempteeBonus+'&next=true';
+				   //var url = window.location.href+'&points='+obj.tempteeBonus+'&next=true';
+				   var url = 'game?gameId='+obj.gameId+'&workerId=' + obj.workerId;
 				   window.location.href = url;
 				   //obj.isNext = "true";
 			   });
 			   
 			   $('#quit').click(function(){
 				   //obj.endChanceAck();
-				   if (confirm('Do you really want to exit?')){ 
-					   obj.reward();
-					   window.close();}
+				   if (confirm('Do you really want to exit?')) { 
+             window.location.href = 'http://google.com';
+					   window.close();
+           }
 			   });
 			
-			};
+		};
 			
 		this.doneTutorial = function (returnData) {
-			  $.ajax({
-				type: "POST",
+      $.ajax({
+      type: "POST",
+      url: "game",
+      data: obj.getPostData("doneTutorial"),
+      success: function(){
+        obj.updateClient();
+        }
+      });
+    };
+
+		this.finishPractice = function (returnData) {
+			$.ajax({
+			  type: "POST",
 				url: "game",
-				data: obj.getPostData("doneTutorial"),
-				success: function(){
-						obj.updateClient();
-						}
-			  });
-			};
+				data: obj.getPostData("finishPractice"),
+				success: function() {
+					obj.updateClient();
+			  }
+			});
+		};
+
 		this.generateDummyApp = function(dummySettings)	{
 			var obj = this;
 			var settings = $.extend({
@@ -902,7 +930,6 @@ function($){
 				return $figure;
 			};
 		this.tutorial = function(screenNo) {
-			
 			//debugger
 			var obj = this;
 			if(screenNo < obj.tutorialScreen().length){

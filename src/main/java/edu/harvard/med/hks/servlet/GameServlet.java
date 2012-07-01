@@ -19,7 +19,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import com.google.gson.Gson;
 
 import edu.harvard.med.hks.model.Slot;
-import edu.harvard.med.hks.model.Slot.Status;
 import edu.harvard.med.hks.server.GeneralException;
 import edu.harvard.med.hks.service.HksGameService;
 
@@ -29,40 +28,44 @@ public class GameServlet extends HttpServlet {
 	private HksGameService hksGameService;
 
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		System.out.println("\n get(.....) method \n") ;
 		String gameId = req.getParameter("gameId");
 		if (StringUtils.isEmpty(gameId)) {
+			PrintWriter out = resp.getWriter();
+			out.println("Unknown gameId");
 			return;
 		}
 		
-		int points = (!StringUtils.isEmpty(req.getParameter("points")))?Integer.parseInt(req.getParameter("points")):0;
-		boolean isNext = (!StringUtils.isEmpty(req.getParameter("next")))?Boolean.valueOf(req.getParameter("next")):false;
-		if (isNext && points >0){
-			String slotId = req.getParameter("slotId");
-			Slot slot = hksGameService.getSlotDao().getByProperty("slotId",	slotId).get(0);
-			slot.setStatus(Status.OCCUPIED.toString());
-			slot.setSurvival(true);
-			slot.setBlackMarkCount(0);
-			 try {
-				hksGameService.getSlotDao().update(slot);
-			} catch (GeneralException e) {
-				e.printStackTrace();
-			}
-			resp.sendRedirect(req.getRequestURL().toString());
-		}
-		
+//		int points = (!StringUtils.isEmpty(req.getParameter("points")))?Integer.parseInt(req.getParameter("points")):0;
+//		boolean isNext = (!StringUtils.isEmpty(req.getParameter("next")))?Boolean.valueOf(req.getParameter("next")) : false;
+//		if (isNext && points > 0){
+//			String slotId = req.getParameter("slotId");
+//			Slot slot = hksGameService.getSlotDao().getByProperty("slotId",	slotId).get(0);
+//			slot.setStatus(Status.OCCUPIED.toString());
+//			slot.setSurvival(true);
+//			slot.setBlackMarkCount(0);
+//			 try {
+//				hksGameService.getSlotDao().update(slot);
+//			} catch (GeneralException e) {
+//				e.printStackTrace();
+//			}
+//			resp.sendRedirect(req.getRequestURL().toString());
+//		}
 		
 		try {
-			String slotId = hksGameService.getEmptySlotId(gameId,
-					req.getParameter("workerId"));
+			Slot slot = hksGameService.findEmptySlotForWorker(gameId, req.getParameter("workerId"));
+			//String slotId = hksGameService.getEmptySlotId(gameId, req.getParameter("workerId"));
+			String slotId = null ;
+			if(slot != null) {
+				slotId = slot.getSlotId() ;
+			}
 			if (slotId == null) {
 				PrintWriter out = resp.getWriter();
 				out.println("Game is full");
 			} else {
-				String url = "index.html?gameId=" + URLEncoder.encode(gameId, "UTF-8")
-					+ "&slotId=" + URLEncoder.encode(slotId, "UTF-8");
-				if (!StringUtils.isEmpty(req.getParameter("workerId"))) {
+				String url = "index.html?gameId=" + URLEncoder.encode(gameId, "UTF-8") + "&slotId=" + URLEncoder.encode(slotId, "UTF-8");
+				if(!StringUtils.isEmpty(req.getParameter("workerId"))) {
 					url += "&workerId=" + URLEncoder.encode(req.getParameter("workerId"), "UTF-8");
 				}
 				if (!StringUtils.isEmpty(req.getParameter("assignmentId"))) {
@@ -82,16 +85,12 @@ public class GameServlet extends HttpServlet {
 	}
 
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		System.out.println("\n post(.....) method \n") ;
 		String gameId = req.getParameter("gameId");
-		if (StringUtils.isEmpty(gameId)) {
-			return;
-		}
+		if (StringUtils.isEmpty(gameId)) return;
 		String action = req.getParameter("a");
-		if (StringUtils.isEmpty(action)) {
-			return;
-		}
+		if (StringUtils.isEmpty(action)) return;
 
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
@@ -99,13 +98,15 @@ public class GameServlet extends HttpServlet {
 				result = hksGameService.update(req);
 			} else if (action.equals("doneTutorial")) {
 				hksGameService.doneTutorial(req);
+			} else if (action.equals("finishPractice")) {
+				result = hksGameService.finishPractice(req);
 			} else if (action.equals("betray")) {
 				result = hksGameService.betray(req);
 			} else if (action.equals("reward")) {
 				result = hksGameService.reward(req);
 			} else if (action.equals("payoffAck")) {
 				result = hksGameService.payoffAck(req);
-			}  else if (action.equals("endChanceAck")) {
+			} else if (action.equals("endChanceAck")) {
 				result = hksGameService.endChanceAck(req);
 			} else if (action.equals("sendFeedback")) {
 				result = hksGameService.sendFeedback(req);
@@ -120,13 +121,14 @@ public class GameServlet extends HttpServlet {
 		resp.setContentType("application/json");
 		PrintWriter out = resp.getWriter();
 		out.println(responseString);
+		System.out.println(responseString) ;
 	}
 
 	@Override
 	public void init() throws ServletException {
 		super.init();
-		ApplicationContext applicationContext = WebApplicationContextUtils
-			.getWebApplicationContext(getServletContext());
+		ApplicationContext applicationContext = 
+			WebApplicationContextUtils.getWebApplicationContext(getServletContext());
 		hksGameService = (HksGameService) applicationContext.getBean("hksGameService");
 	}
 }

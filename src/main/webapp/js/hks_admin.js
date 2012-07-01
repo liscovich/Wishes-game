@@ -145,6 +145,7 @@ var intervalId = setInterval(function() {$.ajax({
       $('#gameTable tr:last').after(newRow);
       if (returnData.currentSlot) {
         $('#report').html(returnData.currentSlot.log);
+        $('#roundReport').html(returnData.currentSlot.report);
       }
     }
     $("#slotTable").find("tr:gt(0)").remove();

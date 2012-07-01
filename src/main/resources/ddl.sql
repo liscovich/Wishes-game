@@ -1,3 +1,4 @@
+#mysql -u hks -phks_pa55word < ddl.sql
 #CREATE USER 'hks'@'localhost' IDENTIFIED BY 'hks_pa55word';
 drop database hks;
 create database hks;
@@ -41,6 +42,7 @@ create table Game (
         initTempteeBonus integer not null,
         lastAction varchar(255),
         log longblob,
+        playerReportJson TEXT,
         maxBetrayPayoff integer not null,
         rewardCaughtAsBetrayal bit not null,
         rewardCaughtAsBetrayalChance double precision not null,
@@ -49,6 +51,7 @@ create table Game (
         slotId varchar(255),
         slotNumber integer not null,
         status varchar(255) not null,
+        practice boolean,
         survival bit not null,
         survivalSampling double precision not null,
         tempteeBonus integer not null,

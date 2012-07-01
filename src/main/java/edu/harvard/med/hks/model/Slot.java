@@ -1,5 +1,11 @@
 package edu.harvard.med.hks.model;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
@@ -8,17 +14,13 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 @Entity
 public class Slot extends AbstractTimestampEntity {
 	public static enum Status {
-		INIT,
-		OCCUPIED,
-		TUTORIAL,
-		PLAY,
-		PAYOFF,
-		FINISHED,
-		DROPPED,
-		THANKS
+		INIT, OCCUPIED, TUTORIAL, PLAY, PAYOFF, FINISHED, DROPPED, THANKS
 	}
 	@NotNull
 	@ManyToOne
@@ -61,6 +63,9 @@ public class Slot extends AbstractTimestampEntity {
 	 * Current tutorial step.
 	 */
 	private int tutorialStep = 1;
+	
+	private boolean practice = false ;
+	
 	/**
 	 * Last action: betray or reward.
 	 */
@@ -94,6 +99,8 @@ public class Slot extends AbstractTimestampEntity {
 	 */
 	@Lob
 	private byte[] log;
+	
+	private   String playerReportJson ;
 	/**
 	 * The max payoff temptee can receive when she betrays
 	 */
@@ -123,60 +130,126 @@ public class Slot extends AbstractTimestampEntity {
 	 */
 	private int initTempteeBonus;
 	private int currentRound = 1;
-	public String getAssignmentId() {
-		return assignmentId;
+	
+	public String getAssignmentId() { return assignmentId; }
+	public double getBetrayCaughtSampling() { return betrayCaughtSampling; }
+
+	public int getBlackMarkCount() { return blackMarkCount; }
+	public int getBlackMarkUpperLimit() { return blackMarkUpperLimit; }
+	
+	public int getCurrentRound() { return currentRound; }
+	public void setCurrentRound(int currentRound) { this.currentRound = currentRound; }
+	
+	public Game getGame() { return game; }
+
+	public String getHitId() { return hitId; }
+	public int getInitTempteeBonus() { return initTempteeBonus; }
+	
+	public String getLastAction() { return lastAction; }
+	
+	public byte[] getLog() { return log; }
+	
+	public PlayerReport getPlayerReport() {
+		if(getPlayerReportJson() == null) {
+			return new Slot.PlayerReport() ;
+		} else {
+			return new Gson().fromJson(getPlayerReportJson(), Slot.PlayerReport.class) ;
+		}
 	}
-	public double getBetrayCaughtSampling() {
-		return betrayCaughtSampling;
+
+	public void setPlayerReport(PlayerReport report) {
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		this.setPlayerReportJson(gson.toJson(report)) ;
 	}
-	public int getBlackMarkCount() {
-		return blackMarkCount;
+	
+	public String getPlayerReportJson() { return playerReportJson ; }
+	public void setPlayerReportJson(String report) { this.playerReportJson = report ;}
+
+	public String getPlayerReportFormatted() {
+		final SimpleDateFormat TIME_FT = new SimpleDateFormat("dd/MM/yyyy@HH:mm:ss")  ;
+		PlayerReport pReport = getPlayerReport() ;
+		if(pReport == null) return "" ;
+		StringBuilder b = new StringBuilder() ;
+		
+		b.append("Inital game parameters").append("\n");
+		b.append("Game Id: ").append(game.getId()).append("\n") ;
+		b.append("Slot Id: ").append(slotId).append("\n") ;
+		b.append("Worker Id: ").append(workerId).append("\n") ;
+		b.append("Assignment Id: ").append(assignmentId).append("\n") ;
+		b.append("Hit Id: ").append(hitId).append("\n") ;
+		b.append("Number Of Game Slot: ").append(game.getNumberOfGameSlot()).append("\n") ;
+		b.append("Max Betray Payoff: ").append(game.getMaxBetrayPayoff()).append("\n") ;
+		b.append("Reward Payoff: ").append(game.getRewardPayoff()).append("\n") ;
+		b.append("Initial Truster Bonus: ").append(game.getInitialTrusterBonus()).append("\n") ;
+		b.append("Chance of black mark for Betrayal: ").append(game.getBetrayCaughtChance()).append("\n") ;
+		b.append("Chance of black mark for Reward: ").append(game.getRewardCaughtAsBetrayalChance()).append("\n") ;
+		b.append("Betrayal Cost: ").append(game.getBetrayalCost()).append("\n") ;
+		b.append("Survival(0 - 1): ").append(game.getTempteeSurvivalChance()).append("\n") ;
+		b.append("Black Mark Threshold: ").append(game.getBlackMarkUpperLimit()).append("\n") ;
+		b.append("Init Temptee Bonus: ").append(game.getInitTempteeBonus()).append("\n") ;
+		b.append("Exchange rate: ").append(game.getExchangeRate()).append("\n") ;
+		b.append("Max Rounds Number: ").append(game.getMaxRoundsNum()).append("\n\n") ;
+		
+		
+		printColumn(b, "Time", 25) ;
+		printColumn(b, "Round", 10) ;
+		printColumn(b, "Low Payoff", 15) ;
+		printColumn(b, "Betray Payoff", 15) ;
+		printColumn(b, "High Payoff", 15) ;
+		printColumn(b, "Choice", 10) ;
+		printColumn(b, "Another Round", 15) ;
+		printColumn(b, "Remaining Wishes", 20) ;
+		printColumn(b, "Balance", 10) ;
+		Iterator<PlayerRoundReport> i = pReport.getRoundReports().values().iterator() ;
+		while(i.hasNext()) {
+			b.append("\n") ;
+			PlayerRoundReport rReport = i.next() ;
+			printColumn(b, TIME_FT.format(new Date(rReport.getTime())), 25) ;
+			printColumn(b, Integer.toString(rReport.getRound()), 10) ;
+			printColumn(b, Integer.toString(rReport.getLowPayoff()), 15) ;
+			printColumn(b, Integer.toString(rReport.getBetrayPayoff()), 15) ;
+			printColumn(b, Integer.toString(rReport.getHighPayoff()), 15) ;
+			printColumn(b, Integer.toString(rReport.getChoice()), 10) ;
+			printColumn(b, Integer.toString(rReport.getAnotherRound()), 15) ;
+			printColumn(b, Integer.toString(rReport.getRemainingWishes()), 20) ;
+			printColumn(b, Integer.toString(rReport.getBalance()), 10) ;
+		}
+		b.append("\n\n") ;
+		printColumn(b, "Worker Id", 25) ;
+		printColumn(b, "Total Earning", 25) ;
+		b.append("\n\n") ;
+		printColumn(b, workerId, 25) ;
+		printColumn(b, "$" + (getTempteeBonus() * game.getExchangeRate()), 25) ;
+		return b.toString() ;
 	}
-	public int getBlackMarkUpperLimit() {
-		return blackMarkUpperLimit;
+	
+	private void printColumn(StringBuilder b, String string, int width) {
+		b.append(string) ;
+		for(int i = string.length(); i < width; i++) {
+			b.append(' ') ;
+		}
 	}
-	public int getCurrentRound() {
-		return currentRound;
-	}
-	public Game getGame() {
-		return game;
-	}
-	public String getHitId() {
-		return hitId;
-	}
-	public int getInitTempteeBonus() {
-		return initTempteeBonus;
-	}
-	public String getLastAction() {
-		return lastAction;
-	}
-	public byte[] getLog() {
-		return log;
-	}
-	public int getRewardPayoff() {
-		return rewardPayoff;
-	}
-	public void setRewardPayoff(int rewardPayoff) {
-		this.rewardPayoff = rewardPayoff;
-	}
-	public double getBetrayCaughtChance() {
-		return betrayCaughtChance;
-	}
+	
+	public int getRewardPayoff() { return rewardPayoff;}
+	public void setRewardPayoff(int rewardPayoff) { this.rewardPayoff = rewardPayoff; }
+	
+	public double getBetrayCaughtChance() { return betrayCaughtChance; }
 	public void setBetrayCaughtChance(double betrayCaughtChance) {
 		this.betrayCaughtChance = betrayCaughtChance;
 	}
-	public double getRewardCaughtAsBetrayalChance() {
-		return rewardCaughtAsBetrayalChance;
-	}
-	public double getRewardCaughtAsBetrayalSampling() {
-		return rewardCaughtAsBetrayalSampling;
-	}
-	public String getSlotId() {
-		return slotId;
-	}
-	public String getStatus() {
-		return status;
-	}
+	
+	public double getRewardCaughtAsBetrayalChance() { return rewardCaughtAsBetrayalChance; }
+	
+	public double getRewardCaughtAsBetrayalSampling() { return rewardCaughtAsBetrayalSampling; }
+	
+	public String getSlotId() { return slotId; }
+	
+	public String getStatus() { return status; }
+	
+	public boolean getPractice() { return practice ; }
+	
+	public void setPractice(boolean b) { this.practice = b ; }
+	
 	public double getSurvivalSampling() {
 		return survivalSampling;
 	}
@@ -186,72 +259,61 @@ public class Slot extends AbstractTimestampEntity {
 	public String getTurkSubmitTo() {
 		return turkSubmitTo;
 	}
-	public int getTutorialStep() {
-		return tutorialStep;
-	}
-	public String getWorkerId() {
-		return workerId;
-	}
-	public boolean isBetrayCaught() {
-		return betrayCaught;
-	}
-	public boolean isRewardCaughtAsBetrayal() {
-		return rewardCaughtAsBetrayal;
-	}
-	public boolean isSurvival() {
-		return survival;
-	}
-	public void setAssignmentId(String assignmentId) {
-		this.assignmentId = assignmentId;
-	}
-	public void setBetrayCaught(boolean betrayCaught) {
-		this.betrayCaught = betrayCaught;
-	}
+	
+	public int getTutorialStep() { return tutorialStep; }
+	
+	public String getWorkerId() { return workerId; }
+	
+	public boolean isBetrayCaught() { return betrayCaught; }
+	
+	public boolean isRewardCaughtAsBetrayal() { return rewardCaughtAsBetrayal; }
+	
+	public boolean isSurvival() { return survival; }
+	
+	public void setAssignmentId(String assignmentId) { this.assignmentId = assignmentId; }
+	
+	public void setBetrayCaught(boolean betrayCaught) { this.betrayCaught = betrayCaught; }
+	
 	public void setBetrayCaughtSampling(double betrayCaughtSampling) {
 		this.betrayCaughtSampling = betrayCaughtSampling;
 	}
 	public void setBlackMarkCount(int blackMarkCount) {
 		this.blackMarkCount = blackMarkCount;
 	}
+	
 	public void setBlackMarkUpperLimit(int blackMarkUpperLimit) {
 		this.blackMarkUpperLimit = blackMarkUpperLimit;
 	}
-	public void setCurrentRound(int currentRound) {
-		this.currentRound = currentRound;
-	}
-	public void setGame(Game game) {
-		this.game = game;
-	}
-	public void setHitId(String hitId) {
-		this.hitId = hitId;
-	}
-	public void setInitTempteeBonus(int initTempteeBonus) {
-		this.initTempteeBonus = initTempteeBonus;
-	}
-	public void setLastAction(String lastAction) {
-		this.lastAction = lastAction;
-	}
+	
+	public void setGame(Game game) { this.game = game ;}
+	
+	public void setHitId(String hitId) { this.hitId = hitId; }
+	
+	public void setInitTempteeBonus(int initTempteeBonus) { this.initTempteeBonus = initTempteeBonus; }
+	
+	public void setLastAction(String lastAction) { this.lastAction = lastAction; }
+	
 	public void setLog(byte[] log) {
 		this.log = log;
 	}
+	
 	public void setRewardCaughtAsBetrayal(boolean rewardCaughtAsBetrayal) {
 		this.rewardCaughtAsBetrayal = rewardCaughtAsBetrayal;
 	}
+	
 	public void setRewardCaughtAsBetrayalChance(double rewardCaughtAsBetrayalChance) {
 		this.rewardCaughtAsBetrayalChance = rewardCaughtAsBetrayalChance;
 	}
 	public void setRewardCaughtAsBetrayalSampling(double rewardCaughtAsBetrayalSampling) {
 		this.rewardCaughtAsBetrayalSampling = rewardCaughtAsBetrayalSampling;
 	}
-	public void setSlotId(String slotId) {
-		this.slotId = slotId;
-	}
-	public void setStatus(String status) {
-		this.status = status;
-	}
-	public void setSurvival(boolean survival) {
-		this.survival = survival;
-	}
+	
+	public void setSlotId(String slotId) { this.slotId = slotId; }
+	
+	public void setStatus(String status) { this.status = status; }
+	
+	public void setSurvival(boolean survival) { this.survival = survival; }
+	
 	public void setSurvivalSampling(double survivalSampling) {
 		this.survivalSampling = survivalSampling;
 	}
@@ -261,40 +323,87 @@ public class Slot extends AbstractTimestampEntity {
 	public void setTurkSubmitTo(String turkSubmitTo) {
 		this.turkSubmitTo = turkSubmitTo;
 	}
-	public void setTutorialStep(int tutorialStep) {
-		this.tutorialStep = tutorialStep;
+	
+	public void setTutorialStep(int tutorialStep) { this.tutorialStep = tutorialStep; }
+	
+	public void setWorkerId(String workerId) { this.workerId = workerId; }
+	
+	public void setWorkerNumber(String workerNumber) { this.workerNumber = workerNumber; }
+	
+	public String getWorkerNumber() { return workerNumber; }
+	
+	public int getTempteeBonus() { return tempteeBonus; }
+	
+	public void setTempteeBonus(int tempteeBonus) { this.tempteeBonus = tempteeBonus; }
+	
+	public int getCurrentBetrayPayoff() { return currentBetrayPayoff; }
+	
+	public void setCurrentBetrayPayoff(int currentBetrayPayoff) { this.currentBetrayPayoff = currentBetrayPayoff; }
+	
+	public int getMaxBetrayPayoff() { return maxBetrayPayoff; }
+	
+	public void setMaxBetrayPayoff(int maxBetrayPayoff) { this.maxBetrayPayoff = maxBetrayPayoff ;}
+	
+	public void setSlotNumber(int slotNumber) { this.slotNumber = slotNumber; }
+	
+	public int getSlotNumber() { return slotNumber; }
+	
+	static public class PlayerReport {
+		private Map<Integer, PlayerRoundReport> roundReports = new HashMap<Integer, PlayerRoundReport>() ;
+
+		public PlayerRoundReport getPlayerRoundReport(int round, boolean create) {
+			PlayerRoundReport rReport = roundReports.get(round) ;
+			if(create && rReport == null) {
+				rReport = new PlayerRoundReport() ;
+				rReport.setRound(round) ;
+				rReport.setTime(System.currentTimeMillis()) ;
+				roundReports.put(round, rReport) ;
+			}
+			return rReport ;
+		}
+		
+		public Map<Integer, PlayerRoundReport> getRoundReports() { return roundReports; }
+		public void setRoundReports(Map<Integer, PlayerRoundReport> roundReports) {
+			this.roundReports = roundReports;
+    }
 	}
-	public void setWorkerId(String workerId) {
-		this.workerId = workerId;
-	}
-	public void setWorkerNumber(String workerNumber) {
-		this.workerNumber = workerNumber;
-	}
-	public String getWorkerNumber() {
-		return workerNumber;
-	}
-	public int getTempteeBonus() {
-		return tempteeBonus;
-	}
-	public void setTempteeBonus(int tempteeBonus) {
-		this.tempteeBonus = tempteeBonus;
-	}
-	public int getCurrentBetrayPayoff() {
-		return currentBetrayPayoff;
-	}
-	public void setCurrentBetrayPayoff(int currentBetrayPayoff) {
-		this.currentBetrayPayoff = currentBetrayPayoff;
-	}
-	public int getMaxBetrayPayoff() {
-		return maxBetrayPayoff;
-	}
-	public void setMaxBetrayPayoff(int maxBetrayPayoff) {
-		this.maxBetrayPayoff = maxBetrayPayoff;
-	}
-	public void setSlotNumber(int slotNumber) {
-		this.slotNumber = slotNumber;
-	}
-	public int getSlotNumber() {
-		return slotNumber;
+	
+	static public class PlayerRoundReport {
+		private int  round ;
+		private long time ;
+		private int lowPayoff ;
+		private int betrayPayoff ;
+		private int highPayoff ;
+		private int choice  ;
+		private int anotherRound ;
+		private int remainingWishes ;
+		private int balance ;
+		
+		public int getRound() { return round; }
+		public void setRound(int round) { this.round = round; }
+		
+		public long getTime() { return this.time ; }
+		public void setTime(long time) { this.time = time ;}
+		
+		public int getLowPayoff() { return lowPayoff; }
+		public void setLowPayoff(int lowPayoff) { this.lowPayoff = lowPayoff; }
+		
+		public int getBetrayPayoff() { return betrayPayoff; }
+		public void setBetrayPayoff(int betrayPayoff) { this.betrayPayoff = betrayPayoff; }
+		
+		public int getHighPayoff() { return highPayoff; }
+		public void setHighPayoff(int highPayoff) { this.highPayoff = highPayoff; }
+
+		public int getChoice() { return choice; }
+		public void setChoice(int choice) { this.choice = choice; }
+		
+		public int getAnotherRound() { return anotherRound; }
+		public void setAnotherRound(int anotherRound) { this.anotherRound = anotherRound; }
+		
+		public int getRemainingWishes() { return remainingWishes; }
+		public void setRemainingWishes(int remainingWishes) { this.remainingWishes = remainingWishes; }
+		
+		public int getBalance() { return balance; }
+		public void setBalance(int balance) { this.balance = balance; }
 	}
 }

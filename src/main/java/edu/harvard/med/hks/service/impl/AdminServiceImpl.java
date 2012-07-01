@@ -77,8 +77,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public Map<String, Object> getHksGames(HttpServletRequest req)
-			throws GeneralException {
+	public Map<String, Object> getHksGames(HttpServletRequest req) throws GeneralException {
 		List<Game> all = hksGameDao.getAllWithOrder("updated", true);
 		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
 		Map<String, Object> result = new HashMap<String, Object>();
@@ -122,6 +121,7 @@ public class AdminServiceImpl implements AdminService {
 					String slotId = req.getParameter("slotId");
 					if (!StringUtils.isEmpty(slotId) && slotId.equals(slot.getSlotId())) {
 						Map<String, Object> currentSlot = new HashMap<String, Object>();
+						currentSlot.put("report", slot.getPlayerReportFormatted());
 						if (slot.getLog() == null) {
 							currentSlot.put("log", new String());
 						} else {
@@ -134,14 +134,10 @@ public class AdminServiceImpl implements AdminService {
 			}
 		}
 		result.put("hksGames", list);
-		return result;
+		return result ;
 	}
 
-	public void setHksGameDao(HksGameDao hksGameDao) {
-		this.hksGameDao = hksGameDao;
-	}
+	public void setHksGameDao(HksGameDao hksGameDao) { this.hksGameDao = hksGameDao; }
 
-	public void setSlotDao(SlotDao slotDao) {
-		this.slotDao = slotDao;
-	}
+	public void setSlotDao(SlotDao slotDao) { this.slotDao = slotDao; }
 }

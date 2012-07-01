@@ -64,18 +64,15 @@ public class Game extends AbstractTimestampEntity {
 	private int maxRoundsNum;
 	
 	
-	public int getInitTempteeBonus() {
-		return initTempteeBonus;
-	}
+	public int getInitTempteeBonus() { return initTempteeBonus;}
 	public void setInitTempteeBonus(int initTempteeBonus) {
 		this.initTempteeBonus = initTempteeBonus;
 	}
-	public int getBlackMarkUpperLimit() {
-		return blackMarkUpperLimit;
-	}
-	public String getGameId() {
-		return gameId;
-	}
+	
+	public int getBlackMarkUpperLimit() { return blackMarkUpperLimit; }
+	
+	public String getGameId() { return gameId; }
+	
 	public int getMaxBetrayPayoff() {
 		return maxBetrayPayoff;
 	}
@@ -124,18 +121,17 @@ public class Game extends AbstractTimestampEntity {
 	public void setTempteeSurvivalChance(double tempteeSurvivalChance) {
 		this.tempteeSurvivalChance = tempteeSurvivalChance;
 	}
-	public int getInitialTrusterBonus() {
-		return initialTrusterBonus;
-	}
+	
+	public int getInitialTrusterBonus() { return initialTrusterBonus; }
 	public void setInitialTrusterBonus(int initialTrusterBonus) {
 		this.initialTrusterBonus = initialTrusterBonus;
 	}
-	public float getExchangeRate() {
-		return exchangeRate;
-	}
+	
+	public float getExchangeRate() { return exchangeRate; }
 	public void setExchangeRate(float exchangeRate) {
 		this.exchangeRate = exchangeRate;
 	}
+	
 	public int getBetrayalCost() {
 		return betrayalCost;
 	}

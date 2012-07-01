@@ -21,8 +21,7 @@ public interface GenericDao<T> {
 	List<T> getByProperties(Map<String, Object> restrictions)
 			throws GeneralException;
 
-	List<T> getByProperties(Map<String, Object> restrictions,
-			String orderByProperty, boolean asc) throws GeneralException;
+	List<T> getByProperties(Map<String, Object> restrictions, String orderByProperty, boolean asc) throws GeneralException;
 
 	List<T> getByProperty(String propertyName, Object propertyValue);
 
