@@ -24,7 +24,7 @@ import edu.harvard.med.hks.service.AdminService;
 public class AdminServiceImpl implements AdminService {
 	@Autowired HksGameDao hksGameDao;
 	@Autowired private SlotDao slotDao;
-
+	
 	@Override
 	public void createHksGame(HttpServletRequest req) throws GeneralException {
 		Game game = new Game();
@@ -136,7 +136,20 @@ public class AdminServiceImpl implements AdminService {
 		result.put("hksGames", list);
 		return result ;
 	}
+	
+	public List<Slot> findGameSlots(String gameId) throws GeneralException {
+		List<Game> byProperty = hksGameDao.getByProperty("gameId", gameId);
+		if (byProperty.isEmpty()) return null;
+		Game game = byProperty.get(0);
+		Map<String, Object> rect = new HashMap<String, Object>();
+		rect.put("game", game);
+		//rect.put("status", Status.INIT.toString());
+		List<Slot> slots = slotDao.getByProperties(rect, "slotNumber", true);
+		return slots;
+	}
 
+	public List<Game> getAllGames() throws GeneralException { return hksGameDao.getAll() ; }
+	
 	public void setHksGameDao(HksGameDao hksGameDao) { this.hksGameDao = hksGameDao; }
 
 	public void setSlotDao(SlotDao slotDao) { this.slotDao = slotDao; }

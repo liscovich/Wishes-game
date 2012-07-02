@@ -831,7 +831,9 @@ function($){
 			
 		this.gameOver = function(){
       if(obj.returnData.practice) {
-			  var $gameOverMessage = $('<div id="game_over"><h4>Practice game is over</h4><div class="label">You\'ve earned ' + obj.returnData.tempteeBonus +' points!</div><div class="label">Now you will play the real game.</div><div class="label"><br/><button id="play_now">Begin</button></div></div>');
+        var plurial = "s" ;
+        if(obj.returnData.gameCanPlay + 1 <= 1) plurial = "" ;
+			  var $gameOverMessage = $('<div id="game_over"><h4>Practice game is over</h4><div class="label">You\'ve earned ' + obj.returnData.tempteeBonus +' points!</div><div class="label">Now you will play the real game.</div><div class="label">You will be able to play it up to ' + (obj.returnData.gameCanPlay + 1)+ ' time' + plurial +'.</div><div class="label"><br/><button id="play_now">Begin</button></div></div>');
 			  obj.choicePanel.html($gameOverMessage) ;
 			  obj.showChoicePanel();
 			   //onclick for 'Play again' button
@@ -841,25 +843,33 @@ function($){
 			   });
         return ;
       }
-			var $gameOverMessage = $('<div id="game_over"><h4>Game Over</h4><div class="label">Thank you for playing.</div><div class="label">You\'ve earned <b>'+ obj.returnData.tempteeBonus +' points!</b></div><div class="label">Your earnings will be deposited to your MTurk account within 14 business days.</div><div class="label"><button id="play_again">Play Again</button><button id="quit">Quit</button></div></div>');
+      var buttons = '<div class="label"><button id="play_again">Play Again</button><button id="quit">Quit</button></div>';
+      if(obj.returnData.lastGameForPlayer) {
+        buttons = '<div class="label"><button id="quit">Quit</button></div>';
+      }
+      
+      var plurial = "s" ;
+      if(obj.returnData.gameCanPlay <= 1) plurial = "" ;
+			var $gameOverMessage = $('<div id="game_over"><h4>Game Over</h4><div class="label">Thank you for playing.</div><div class="label">You\'ve earned <b>'+ obj.returnData.tempteeBonus +' points!</b></div><div class="label">Your earnings in the current game have been recorded and will be deposited to your MTurk account within 14 business days. You can play this game ' + obj.returnData.gameCanPlay +' more time' +plurial+ '.</div>' + buttons + '</div>');
+
 			obj.choicePanel.html($gameOverMessage) ;
 			obj.showChoicePanel();
-			   //onclick for 'Play again' button
-			   $('#play_again').click(function(){
-				   //var url = window.location.href+'&points='+obj.tempteeBonus+'&next=true';
-				   var url = 'game?gameId='+obj.gameId+'&workerId=' + obj.workerId;
-				   window.location.href = url;
-				   //obj.isNext = "true";
-			   });
-			   
-			   $('#quit').click(function(){
-				   //obj.endChanceAck();
-				   if (confirm('Do you really want to exit?')) { 
-             window.location.href = 'http://google.com';
-					   window.close();
-           }
-			   });
-			
+      //onclick for 'Play again' button
+      if(!obj.returnData.lastGameForPlayer) {
+        $('#play_again').click(function(){
+          //var url = window.location.href+'&points='+obj.tempteeBonus+'&next=true';
+          var url = 'game?gameId='+obj.gameId+'&workerId=' + obj.workerId;
+          window.location.href = url;
+          //obj.isNext = "true";
+        });
+      }
+      $('#quit').click(function(){
+        //obj.endChanceAck();
+        if (confirm('Do you really want to exit?')) { 
+          window.location.href = 'http://google.com';
+          window.close();
+        }
+      });
 		};
 			
 		this.doneTutorial = function (returnData) {

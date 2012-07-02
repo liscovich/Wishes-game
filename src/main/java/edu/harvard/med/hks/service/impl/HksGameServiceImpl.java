@@ -75,12 +75,10 @@ public class HksGameServiceImpl implements HksGameService {
 
 	@Override
 	public Map<String, Object> betray(HttpServletRequest req) throws GeneralException {
-		System.out.println("call betray(.....) method ") ;
 		Map<String, Object> result = new HashMap<String, Object>();
 		List<Slot> byProperty = slotDao.getByProperty("slotId", req.getParameter("slotId"));
 		if(byProperty.isEmpty()) return result;
 		Slot slot = byProperty.get(0);
-		System.out.println(" Slot = " + slot.getSlotId()) ;
 		appendClientInfo(slot, req);
 		if(!slot.getGame().getGameId().equals(req.getParameter("gameId"))) {
 			result.put("status", Status.DROPPED);
@@ -107,7 +105,7 @@ public class HksGameServiceImpl implements HksGameService {
 		slot.setStatus(Status.PAYOFF.toString());
 	  //Log player report for each round
 		Slot.PlayerReport pReport = slot.getPlayerReport() ;
-		Slot.PlayerRoundReport roundReport = pReport.getPlayerRoundReport(slot.getCurrentRound(), false) ;
+		Slot.PlayerRoundReport roundReport = pReport.getPlayerRoundReport(slot, slot.getCurrentRound(), false) ;
 		roundReport.setRemainingWishes(slot.getGame().getBlackMarkUpperLimit() - slot.getBlackMarkCount());
 		roundReport.setChoice(1) ;
 		roundReport.setBalance(slot.getTempteeBonus()) ;
@@ -119,7 +117,6 @@ public class HksGameServiceImpl implements HksGameService {
 	}
 
 	public void doneTutorial(HttpServletRequest req) throws GeneralException {
-		System.out.println("call doneTutorial(.....) method ") ;
 		List<Slot> byProperty = slotDao.getByProperty("slotId", req.getParameter("slotId"));
 		if (byProperty.isEmpty()) return;
 		Slot slot = byProperty.get(0);
@@ -132,7 +129,6 @@ public class HksGameServiceImpl implements HksGameService {
 	}
 	
 	public Map<String, Object> finishPractice(HttpServletRequest req) throws GeneralException {
-		System.out.println("call finishPractice(.....) method ") ;
 		Map<String, Object> result = new HashMap<String, Object>();
 		List<Slot> byProperty = slotDao.getByProperty("slotId", req.getParameter("slotId"));
 		if(byProperty.isEmpty()) {
@@ -146,6 +142,7 @@ public class HksGameServiceImpl implements HksGameService {
 		}
 		initPlay(slot);
 		slot.setPractice(false) ;
+		slot.setCurrentRound(1) ;
 		slotDao.update(slot);
 		output(result, slot);
 		return result;
@@ -174,7 +171,6 @@ public class HksGameServiceImpl implements HksGameService {
 		    tutorial and the practice game
 		 8. when they play the last allowed game, at the end of the game, the button "play again" does not appear
 		 */
-		System.out.println("findEmptySlotForworker(String gameId, String workerId)");
 		if (StringUtils.isEmpty(workerId)) return null;
 		List<Game> byProperty = hksGameDao.getByProperty("gameId", gameId);
 		if (byProperty.isEmpty()) return null;
@@ -183,7 +179,6 @@ public class HksGameServiceImpl implements HksGameService {
 		rect.put("game", game);
 		//rect.put("status", Status.INIT.toString());
 		List<Slot> slots = slotDao.getByProperties(rect, "slotNumber", true);
-		System.out.println("  Available Slots: " + slots.size());
 		if(slots.isEmpty()) return null ;
 		List<Slot> freeSlots = new ArrayList<Slot>() ;
 	  List<Slot> workerPlayedSlots = new ArrayList<Slot>() ;
@@ -195,18 +190,15 @@ public class HksGameServiceImpl implements HksGameService {
 	  		workerPlayedSlots.add(slot) ;
 	  	}
 	  }
-	  System.out.println("  Number of Free slot: " + freeSlots.size());
-	  System.out.println("  Number of the worker played slot: " + workerPlayedSlots.size());
 	  if(freeSlots.size() == 0) return null; 
 	  if(!workerId.equals("admin7") && workerPlayedSlots.size() >= game.getMaxRoundsNum()) return null ;
 		Slot slot = freeSlots.get(0);
 		if(workerPlayedSlots.size() == 0 || "admin7".equals(workerId)) {
 		  slot.setStatus(Status.INIT.toString());
-		  System.out.println("  Set status INIT");
 		} else {
 			slot.setStatus(Status.PLAY.toString());
-			System.out.println("  Set status  PLAY ");
 		}
+		slot.setWorkerPlayTracker(workerPlayedSlots.size() + 1) ;
 		return slot;
 	}
 	
@@ -235,11 +227,13 @@ public class HksGameServiceImpl implements HksGameService {
 		result.put("maxBetrayPayoff", slot.getMaxBetrayPayoff());
 		result.put("mturkRate", slot.getGame().getExchangeRate());
 		result.put("practice", slot.getPractice());
+		result.put("gameCanPlay", (slot.getGame().getMaxRoundsNum() - slot.getWorkerPlayTracker()));
+		boolean lastGame = !"admin7".equals(slot.getWorkerId()) && slot.getWorkerPlayTracker() >= slot.getGame().getMaxRoundsNum();
+		result.put("lastGameForPlayer", lastGame);
 	}
 
 	@Override
 	public Map<String, Object> payoffAck(HttpServletRequest req) throws GeneralException {
-		System.out.println("call payoffAck(.....) method ") ;
 		Map<String, Object> result = new HashMap<String, Object>();
 		List<Slot> byProperty = slotDao.getByProperty("slotId", req.getParameter("slotId"));
 		if (byProperty.isEmpty())	return result;
@@ -251,13 +245,13 @@ public class HksGameServiceImpl implements HksGameService {
 		if (slot.isSurvival()) {
 		  //Log player, finish a round
 			Slot.PlayerReport pReport = slot.getPlayerReport() ;
-			Slot.PlayerRoundReport roundReport = pReport.getPlayerRoundReport(slot.getCurrentRound(), false) ;
+			Slot.PlayerRoundReport roundReport = pReport.getPlayerRoundReport(slot, slot.getCurrentRound(), false) ;
 			roundReport.setAnotherRound(1) ;
 			slot.setCurrentRound(slot.getCurrentRound() + 1);
 			slot.setStatus(Status.PLAY.toString());
 			samplingNewRound(slot);
 			//Log player, init a new round
-			roundReport = pReport.getPlayerRoundReport(slot.getCurrentRound(), true) ;
+			roundReport = pReport.getPlayerRoundReport(slot, slot.getCurrentRound(), true) ;
 			roundReport.setLowPayoff(slot.getGame().getRewardPayoff());
 			roundReport.setBetrayPayoff(slot.getCurrentBetrayPayoff() - roundReport.getLowPayoff()) ;
 			roundReport.setHighPayoff(slot.getCurrentBetrayPayoff());
@@ -272,7 +266,6 @@ public class HksGameServiceImpl implements HksGameService {
 
 	@Override
 	public Map<String, Object> endChanceAck(HttpServletRequest req) {
-		System.out.println("call endChanceAck(.....) method ") ;
 		Map<String, Object> result = new HashMap<String, Object>();
 		List<Slot> byProperty = slotDao.getByProperty("slotId", req.getParameter("slotId"));
 		if (byProperty.isEmpty()) return result;
@@ -330,7 +323,6 @@ public class HksGameServiceImpl implements HksGameService {
 
 	@Override
 	public Map<String, Object> reward(HttpServletRequest req) throws GeneralException {
-		System.out.println("call reward(.....) method ") ;
 		Map<String, Object> result = new HashMap<String, Object>();
 		List<Slot> byProperty = slotDao.getByProperty("slotId", req.getParameter("slotId"));
 		if (byProperty.isEmpty()) {
@@ -363,7 +355,7 @@ public class HksGameServiceImpl implements HksGameService {
 		
 	  //Log player report for each round
 		Slot.PlayerReport pReport = slot.getPlayerReport() ;
-		Slot.PlayerRoundReport roundReport = pReport.getPlayerRoundReport(slot.getCurrentRound(), false) ;
+		Slot.PlayerRoundReport roundReport = pReport.getPlayerRoundReport(slot, slot.getCurrentRound(), false) ;
 		roundReport.setChoice(0) ;
 		roundReport.setRemainingWishes(slot.getGame().getBlackMarkUpperLimit() - slot.getBlackMarkCount());
 		roundReport.setBalance(slot.getTempteeBonus()) ;
@@ -402,7 +394,6 @@ public class HksGameServiceImpl implements HksGameService {
 	
 	@Override
 	public Map<String, Object> update(HttpServletRequest req)throws GeneralException {
-		System.out.println("call update(.....) method ") ;
 		List<Slot> byProperty = slotDao.getByProperty("slotId", req.getParameter("slotId"));
 		Map<String, Object> result = new HashMap<String, Object>();
 		if(byProperty.isEmpty()) {
@@ -411,7 +402,6 @@ public class HksGameServiceImpl implements HksGameService {
 		}
 		
 		Slot slot = byProperty.get(0);
-		System.out.println(" Slot = " + slot.getSlotId()) ;		
 //		//next == play again
 //		if(!StringUtils.isEmpty(req.getParameter("next"))) {
 //			roundsPlayed++;
@@ -444,14 +434,14 @@ public class HksGameServiceImpl implements HksGameService {
 //			}
 //		}
 		
-		System.out.println("Slot status = " + slot.getStatus()) ;
 		
 		if (!slot.getGame().getGameId().equals(req.getParameter("gameId"))) {
 			result.put("status", Status.DROPPED);
 			return result;
 		}
 		
-		if (slot.getStatus().equals(Status.INIT.toString())) {
+		boolean init = slot.getStatus().equals(Status.INIT.toString()) ; 
+		if (init) {
 			slot.setStatus(Status.TUTORIAL.toString());
 			slot.setTempteeBonus(slot.getInitTempteeBonus());
 			samplingNewRound(slot);
@@ -492,39 +482,26 @@ public class HksGameServiceImpl implements HksGameService {
 			appendLog(slot, "Hit Id: " + slot.getHitId()) ;
 		}
 	  //Log init a new round
-		slot.setPlayerReportJson(null) ;
-		Slot.PlayerReport pReport = slot.getPlayerReport() ;
-		Slot.PlayerRoundReport roundReport = pReport.getPlayerRoundReport(slot.getCurrentRound(), true) ;
-		roundReport.setLowPayoff(slot.getGame().getRewardPayoff());
-		roundReport.setBetrayPayoff(slot.getCurrentBetrayPayoff() - roundReport.getLowPayoff()) ;
-		roundReport.setHighPayoff(slot.getCurrentBetrayPayoff());
-		slot.setPlayerReport(pReport) ;
+		//slot.setPlayerReportJson(null) ;
+		
+		if(!init) {
+			Slot.PlayerReport pReport = slot.getPlayerReport() ;
+			Slot.PlayerRoundReport roundReport = pReport.getPlayerRoundReport(slot, slot.getCurrentRound(), true) ;
+			roundReport.setLowPayoff(slot.getGame().getRewardPayoff());
+			roundReport.setBetrayPayoff(slot.getCurrentBetrayPayoff() - roundReport.getLowPayoff()) ;
+			roundReport.setHighPayoff(slot.getCurrentBetrayPayoff());
+			slot.setPlayerReport(pReport) ;
+		}
 		slotDao.update(slot);
 		output(result, slot);
 		return result;
 	}
 
-	@Override
-	public void setRoundsPlayed(int roundsPlayed) {
-		System.out.println("call setRoundsPlayed(.....) method ") ;
-		this.roundsPlayed = roundsPlayed;
-	}
+	public void setRoundsPlayed(int roundsPlayed) { this.roundsPlayed = roundsPlayed; }
 
-	@Override
-	public int getRoundsPlayed() {
-		System.out.println("call getRoundsPlayed(.....) method ") ;
-		return this.roundsPlayed;
-	}
+	public int getRoundsPlayed() { return this.roundsPlayed; }
 
-	@Override
-	public HksGameDao getGameDao() {
-		System.out.println("call getGameDao(.....) method ") ;
-		return hksGameDao;
-	}
+	public HksGameDao getGameDao() { return hksGameDao; }
 
-	@Override
-	public SlotDao getSlotDao() {
-		System.out.println("call getSlotDao(.....) method ") ;
-		return slotDao;
-	}
+	public SlotDao getSlotDao() { return slotDao; }
 }

@@ -29,7 +29,6 @@ public class GameServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		System.out.println("\n get(.....) method \n") ;
 		String gameId = req.getParameter("gameId");
 		if (StringUtils.isEmpty(gameId)) {
 			PrintWriter out = resp.getWriter();
@@ -86,7 +85,6 @@ public class GameServlet extends HttpServlet {
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		System.out.println("\n post(.....) method \n") ;
 		String gameId = req.getParameter("gameId");
 		if (StringUtils.isEmpty(gameId)) return;
 		String action = req.getParameter("a");
@@ -121,7 +119,6 @@ public class GameServlet extends HttpServlet {
 		resp.setContentType("application/json");
 		PrintWriter out = resp.getWriter();
 		out.println(responseString);
-		System.out.println(responseString) ;
 	}
 
 	@Override

@@ -50,14 +50,19 @@
 		<servlet-name>game</servlet-name>
 		<url-pattern>/game</url-pattern>
 	</servlet-mapping>
+
+  <!--
 	<servlet-mapping>
 		<servlet-name>jsp</servlet-name>
-		<url-pattern>*.html</url-pattern>
+		<url-pattern>*.jsp</url-pattern>
+		<url-pattern>*.jspx</url-pattern>
 	</servlet-mapping>
-	
+  -->
+
 	<session-config>
 		<session-timeout>30</session-timeout>
 	</session-config>
+
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>

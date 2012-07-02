@@ -3,6 +3,7 @@ package edu.harvard.med.hks.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -16,6 +17,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.google.gson.Gson;
 
+import edu.harvard.med.hks.model.Slot;
 import edu.harvard.med.hks.server.GeneralException;
 import edu.harvard.med.hks.service.AdminService;
 
@@ -25,6 +27,27 @@ public class AdminServlet extends HttpServlet {
 	private ApplicationContext applicationContext;
 	private AdminService adminService;
 
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String action = req.getParameter("a");
+		if("gameReport".equals(action)) {
+			try {
+				String gameId = req.getParameter("gameId") ;
+				if(gameId == null) {
+					req.setAttribute("service", adminService) ;
+					req.getRequestDispatcher("AllGameReport.jsp").forward(req, resp) ;
+				} else {
+				  List<Slot> slots = adminService.findGameSlots(gameId) ;
+				  req.setAttribute("gameSlots", slots) ;
+				  req.getRequestDispatcher("GameReport.jsp").forward(req, resp) ;
+				}
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e) ;
+				PrintWriter out = resp.getWriter();
+				out.println(e.getMessage());
+			}
+		}
+	}
+	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
@@ -41,6 +64,8 @@ public class AdminServlet extends HttpServlet {
 				result = adminService.getHksGames(req);
 			} else if (action.equals("deleteGame")) {
 				adminService.deleteGame(req.getParameter("gameId"));
+			} else if(action.equals("gameReport")) {
+				req.getRequestDispatcher("GameReport.jsp").forward(req, resp) ;
 			}
 		} catch (GeneralException e) {
 			result.put("error", e.getMessage());

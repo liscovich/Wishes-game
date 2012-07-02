@@ -124,6 +124,8 @@ var intervalId = setInterval(function() {$.ajax({
       } else {
         linkText += " <a href='javascript:watchGame(\"" + returnData.hksGames[i].gameId + "\")'>Watch</a>";
       }
+      linkText += " <a target='_report' href='admin?a=gameReport&gameId=" + returnData.hksGames[i].gameId +"'>Report</a>";
+
       var newRow = "<tr>" +
           "<td>" + returnData.hksGames[i].gameId + "</td>" +
           "<td>" + returnData.hksGames[i].numberOfGameSlot + "</td>\
@@ -157,11 +159,13 @@ var intervalId = setInterval(function() {$.ajax({
         } else {
           linkText += " <a href='javascript:watchSlot(\"" + returnData.slots[i].slotId + "\")'>Watch</a>";
         }
+
         if (returnData.slots[i].status == "INIT") {
           linkText += " <a target='_blank' href='game?gameId=" + previewId + "&workerId=admin7'>Test</a>";
         } else {
           linkText += " <a target='_blank' href='index.html?gameId=" + previewId + "&slotId=" + encodeURIComponent(returnData.slots[i].slotId) + "'>Test</a>";
         }
+
         var newRow = "<tr>" +
         "<td><a href='game?gameId=" + previewId + "'>" + returnData.slots[i].slotNumber + "</a></td>" +
         "<td>" + returnData.slots[i].status + "</td>\

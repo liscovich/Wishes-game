@@ -60,6 +60,7 @@ create table Game (
         tutorialStep integer not null,
         workerId varchar(255),
         workerNumber varchar(255),
+        workerPlayTracker integer not null,
         game_id integer not null,
         primary key (id)
     );

@@ -1,1 +1,0 @@
-start /d%~dp0

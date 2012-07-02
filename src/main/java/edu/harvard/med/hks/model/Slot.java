@@ -2,8 +2,8 @@ package edu.harvard.med.hks.model;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -31,22 +31,17 @@ public class Slot extends AbstractTimestampEntity {
 	private String hitId = "";
 	@Column(length=1000)
 	private String turkSubmitTo = "";
-	/**
-	 * Slot number.
-	 */
+	
 	private int slotNumber;
-	/**
-	 * Worker number.
-	 */
 	private String workerNumber = "";
-	/**
-	 * Slot ID.
-	 */
 	private String slotId;
 	/**
 	 * Work ID in Amazon Mechanical Turk.
 	 */
 	private String workerId = "";
+	
+	private int    workerPlayTracker = 0 ;
+	
 	/**
 	 * Reputation of temptee. It is number of black marks.
 	 */
@@ -65,7 +60,6 @@ public class Slot extends AbstractTimestampEntity {
 	private int tutorialStep = 1;
 	
 	private boolean practice = false ;
-	
 	/**
 	 * Last action: betray or reward.
 	 */
@@ -192,7 +186,7 @@ public class Slot extends AbstractTimestampEntity {
 		
 		
 		printColumn(b, "Time", 25) ;
-		printColumn(b, "Round", 10) ;
+		printColumn(b, "Round", 25) ;
 		printColumn(b, "Low Payoff", 15) ;
 		printColumn(b, "Betray Payoff", 15) ;
 		printColumn(b, "High Payoff", 15) ;
@@ -200,12 +194,18 @@ public class Slot extends AbstractTimestampEntity {
 		printColumn(b, "Another Round", 15) ;
 		printColumn(b, "Remaining Wishes", 20) ;
 		printColumn(b, "Balance", 10) ;
-		Iterator<PlayerRoundReport> i = pReport.getRoundReports().values().iterator() ;
+		Iterator<Map.Entry<String, PlayerRoundReport>> i = pReport.getRoundReports().entrySet().iterator() ;
 		while(i.hasNext()) {
+			Map.Entry<String, PlayerRoundReport> entry = i.next() ;
+			PlayerRoundReport rReport = entry.getValue() ;
+			if(rReport.getBalance() == 0) {
+			  //hack to remove the junk log, to do it correctly , should fix the service and log.
+				//But the service code is very messy and I do not have enough time
+				continue ; 
+			}
 			b.append("\n") ;
-			PlayerRoundReport rReport = i.next() ;
 			printColumn(b, TIME_FT.format(new Date(rReport.getTime())), 25) ;
-			printColumn(b, Integer.toString(rReport.getRound()), 10) ;
+			printColumn(b, rReport.getId(), 25) ;
 			printColumn(b, Integer.toString(rReport.getLowPayoff()), 15) ;
 			printColumn(b, Integer.toString(rReport.getBetrayPayoff()), 15) ;
 			printColumn(b, Integer.toString(rReport.getHighPayoff()), 15) ;
@@ -250,19 +250,18 @@ public class Slot extends AbstractTimestampEntity {
 	
 	public void setPractice(boolean b) { this.practice = b ; }
 	
-	public double getSurvivalSampling() {
-		return survivalSampling;
-	}
-	public double getTempteeSurvivalChance() {
-		return tempteeSurvivalChance;
-	}
-	public String getTurkSubmitTo() {
-		return turkSubmitTo;
-	}
+	public double getSurvivalSampling() { return survivalSampling; }
+	
+	public double getTempteeSurvivalChance() { return tempteeSurvivalChance; }
+	
+	public String getTurkSubmitTo() { return turkSubmitTo; }
 	
 	public int getTutorialStep() { return tutorialStep; }
 	
 	public String getWorkerId() { return workerId; }
+	
+	public int getWorkerPlayTracker() { return this.workerPlayTracker ; }
+	public void setWorkerPlayTracker(int number) { this.workerPlayTracker = number ; } 
 	
 	public boolean isBetrayCaught() { return betrayCaught; }
 	
@@ -277,6 +276,7 @@ public class Slot extends AbstractTimestampEntity {
 	public void setBetrayCaughtSampling(double betrayCaughtSampling) {
 		this.betrayCaughtSampling = betrayCaughtSampling;
 	}
+	
 	public void setBlackMarkCount(int blackMarkCount) {
 		this.blackMarkCount = blackMarkCount;
 	}
@@ -293,9 +293,7 @@ public class Slot extends AbstractTimestampEntity {
 	
 	public void setLastAction(String lastAction) { this.lastAction = lastAction; }
 	
-	public void setLog(byte[] log) {
-		this.log = log;
-	}
+	public void setLog(byte[] log) { this.log = log; }
 	
 	public void setRewardCaughtAsBetrayal(boolean rewardCaughtAsBetrayal) {
 		this.rewardCaughtAsBetrayal = rewardCaughtAsBetrayal;
@@ -304,6 +302,7 @@ public class Slot extends AbstractTimestampEntity {
 	public void setRewardCaughtAsBetrayalChance(double rewardCaughtAsBetrayalChance) {
 		this.rewardCaughtAsBetrayalChance = rewardCaughtAsBetrayalChance;
 	}
+	
 	public void setRewardCaughtAsBetrayalSampling(double rewardCaughtAsBetrayalSampling) {
 		this.rewardCaughtAsBetrayalSampling = rewardCaughtAsBetrayalSampling;
 	}
@@ -317,9 +316,11 @@ public class Slot extends AbstractTimestampEntity {
 	public void setSurvivalSampling(double survivalSampling) {
 		this.survivalSampling = survivalSampling;
 	}
+	
 	public void setTempteeSurvivalChance(double tempteeSurvivalChance) {
 		this.tempteeSurvivalChance = tempteeSurvivalChance;
 	}
+	
 	public void setTurkSubmitTo(String turkSubmitTo) {
 		this.turkSubmitTo = turkSubmitTo;
 	}
@@ -328,9 +329,8 @@ public class Slot extends AbstractTimestampEntity {
 	
 	public void setWorkerId(String workerId) { this.workerId = workerId; }
 	
-	public void setWorkerNumber(String workerNumber) { this.workerNumber = workerNumber; }
-	
 	public String getWorkerNumber() { return workerNumber; }
+	public void   setWorkerNumber(String workerNumber) { this.workerNumber = workerNumber; }
 	
 	public int getTempteeBonus() { return tempteeBonus; }
 	
@@ -344,40 +344,47 @@ public class Slot extends AbstractTimestampEntity {
 	
 	public void setMaxBetrayPayoff(int maxBetrayPayoff) { this.maxBetrayPayoff = maxBetrayPayoff ;}
 	
+	public int  getSlotNumber() { return slotNumber; }
 	public void setSlotNumber(int slotNumber) { this.slotNumber = slotNumber; }
 	
-	public int getSlotNumber() { return slotNumber; }
-	
 	static public class PlayerReport {
-		private Map<Integer, PlayerRoundReport> roundReports = new HashMap<Integer, PlayerRoundReport>() ;
+		private Map<String, PlayerRoundReport> roundReports = new LinkedHashMap<String, PlayerRoundReport>() ;
 
-		public PlayerRoundReport getPlayerRoundReport(int round, boolean create) {
-			PlayerRoundReport rReport = roundReports.get(round) ;
+		public PlayerRoundReport getPlayerRoundReport(Slot slot, int round, boolean create) {
+			String key = "PLAY ROUND ";
+			if(slot.getPractice()) key = "PRACTICE ROUND " ;
+			key += round ;
+			PlayerRoundReport rReport = roundReports.get(key) ;
 			if(create && rReport == null) {
 				rReport = new PlayerRoundReport() ;
+				rReport.setId(key) ;
 				rReport.setRound(round) ;
 				rReport.setTime(System.currentTimeMillis()) ;
-				roundReports.put(round, rReport) ;
+				roundReports.put(key, rReport) ;
 			}
 			return rReport ;
 		}
 		
-		public Map<Integer, PlayerRoundReport> getRoundReports() { return roundReports; }
-		public void setRoundReports(Map<Integer, PlayerRoundReport> roundReports) {
+		public Map<String, PlayerRoundReport> getRoundReports() { return roundReports; }
+		public void setRoundReports(Map<String, PlayerRoundReport> roundReports) {
 			this.roundReports = roundReports;
     }
 	}
 	
 	static public class PlayerRoundReport {
+		private String id ;
 		private int  round ;
 		private long time ;
-		private int lowPayoff ;
-		private int betrayPayoff ;
-		private int highPayoff ;
-		private int choice  ;
-		private int anotherRound ;
-		private int remainingWishes ;
-		private int balance ;
+		private int  lowPayoff ;
+		private int  betrayPayoff ;
+		private int  highPayoff ;
+		private int  choice  ;
+		private int  anotherRound ;
+		private int  remainingWishes ;
+		private int  balance ;
+		
+		public String getId() { return id ; }
+		public void   setId(String id) { this.id = id ; }
 		
 		public int getRound() { return round; }
 		public void setRound(int round) { this.round = round; }

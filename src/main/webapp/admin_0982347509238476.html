@@ -13,45 +13,46 @@
 <body>
 <div id="errorMessage" style='visibility:hidden;height:20px;'></div> 
 <div>
-<table id="gameTable" class="infoTable" width="100%">
-	<tr height='60'>
-		<td>Game ID</td>
-		<td>Number of game slot</td>
-		<td>Max Betray Payoff</td>
-		<td>Reward Payoff</td>
-		<td>Initial Truster Bonus</td>
-		<td>Chance of black mark for Betrayal</td>
-		<td>Chance of black mark for Reward</td>
-		<td>Betrayal Cost</td>
-		<td>Survival (0-1)</td>
-		<td>Black Mark Threshold</td>
-		<td>Init Temptee Bonus</td>
-		<td>Exchange rate</td>
-		<td>Max Rounds Number</td>
-		<td width='110'></td>
-	</tr>
-	<tr>
-		<td><input id="gameId" onfocus='this.value = generateGameID();' style='width:8em;'></input></td>
-		<td><input id="numberOfGameSlot" style='width:8em;' value='10'></input></td>
-		<td><input id="maxBetrayPayoff" style='width:8em;' value='20'></input></td>
-		<td><input id="rewardPayoff" style='width:8em;' value='10'></input></td>
-		
-		<td><input id="initialTrusterBonus" style='width:8em;' value='100'></input></td>
-		
-		<td><input id="betrayCaughtChance" style='width:8em;' value='1'></input></td>
-		<td><input id="rewardCaughtAsBetrayalChance" style='width:8em;' value='0'></input></td>
-		
-		<td><input id="betrayalCost" style='width:8em;' value='5'></input></td>
-		
-		<td><input id="tempteeSurvivalChance" style='width:8em;' value='.9'></input></td>
-		<td><input id="blackMarkUpperLimit" style='width:8em;' value='5'></input></td>
-		<td><input id="initTempteeBonus" style='width:8em;' value='100'></input></td>
-		
-		<td><input id="exchangeRate" style='width:8em;' value='0.01'></input></td>
-		<td><input id="maxRoundsNum" style='width:8em;' value='3'></input></td>
-		<td><input id="prepareServer" type="button" value="New Game"/></td>
-	</tr>
-</table>
+  <table id="gameTable" class="infoTable" width="100%">
+    <tr height='60'>
+      <td>Game ID</td>
+      <td>Number of game slot</td>
+      <td>Max Betray Payoff</td>
+      <td>Reward Payoff</td>
+      <td>Initial Truster Bonus</td>
+      <td>Chance of black mark for Betrayal</td>
+      <td>Chance of black mark for Reward</td>
+      <td>Betrayal Cost</td>
+      <td>Survival (0-1)</td>
+      <td>Black Mark Threshold</td>
+      <td>Init Temptee Bonus</td>
+      <td>Exchange rate</td>
+      <td>Max Rounds Number</td>
+      <td width='110'></td>
+    </tr>
+    <tr>
+      <td><input id="gameId" onfocus='this.value = generateGameID();' style='width:8em;'></input></td>
+      <td><input id="numberOfGameSlot" style='width:8em;' value='10'></input></td>
+      <td><input id="maxBetrayPayoff" style='width:8em;' value='20'></input></td>
+      <td><input id="rewardPayoff" style='width:8em;' value='10'></input></td>
+      
+      <td><input id="initialTrusterBonus" style='width:8em;' value='100'></input></td>
+      
+      <td><input id="betrayCaughtChance" style='width:8em;' value='1'></input></td>
+      <td><input id="rewardCaughtAsBetrayalChance" style='width:8em;' value='0'></input></td>
+      
+      <td><input id="betrayalCost" style='width:8em;' value='5'></input></td>
+      
+      <td><input id="tempteeSurvivalChance" style='width:8em;' value='.9'></input></td>
+      <td><input id="blackMarkUpperLimit" style='width:8em;' value='5'></input></td>
+      <td><input id="initTempteeBonus" style='width:8em;' value='100'></input></td>
+      
+      <td><input id="exchangeRate" style='width:8em;' value='0.01'></input></td>
+      <td><input id="maxRoundsNum" style='width:8em;' value='3'></input></td>
+      <td><input id="prepareServer" type="button" value="New Game"/></td>
+    </tr>
+  </table>
+  <h3><a target='_report' href='admin?a=gameReport'> Game Report</a></h3>
 </div>
 <div id='watch' style='display:none;'>
 	<div id='slots' style='padding-top:10px;'>
