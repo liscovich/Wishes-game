@@ -20,7 +20,7 @@ $.extend({
 (
 function($){
 	//creating a general class called Temptation Game
-	function TemptationGame(element,options){
+	function TemptationGame(element,options) {
 		var elem = $(element);
 		var obj = this;
 		var settings = $.extend({
@@ -374,6 +374,7 @@ function($){
             }
           break;
         case "FINISHED":
+          obj.updateBlackMarks();
           if($('#collectorbox').size() == 0) obj.initGame();
           obj.gameOver();
           break;
@@ -475,15 +476,15 @@ function($){
 			
 			
 		this.createSurvivalPanel= function(){
-		var obj = this;
+		  var obj = this;
 			var $survivalPanel = $('<div id="survival_panel"/>');
-				var $anotherRoundMessage = $("<div class='label'>Another Round?</div>");
-				var $wheelOfFortune = $("<div id='wheel_of_fortune'></div>");
-				var $findOutButton = $('<button id="find_out">Find Out</button>');
+		  var $anotherRoundMessage = $("<div class='label'>Another Round?</div>");
+			var $wheelOfFortune = $("<div id='wheel_of_fortune'></div>");
+			var $findOutButton = $('<button id="find_out">Find Out</button>');
 				
-				$survivalPanel.append($anotherRoundMessage,$wheelOfFortune,$findOutButton);
-			return $survivalPanel;
-			};
+			$survivalPanel.append($anotherRoundMessage,$wheelOfFortune,$findOutButton);
+		  return $survivalPanel;
+		};
 		
 		this.createWheelOfFortune = function(canvasSelector,buttonSelector,autoRender){
 			  $('#'+canvasSelector).empty();
@@ -790,7 +791,7 @@ function($){
 				  obj.processReturnedData(returnData);
 				}
 			  });
-			};	
+	  };	
 		this.nextRound = function(){
 			  $.ajax({
 				type: "POST",
@@ -829,7 +830,7 @@ function($){
 				});
 			};
 			
-		this.gameOver = function(){
+		this.gameOver = function() {
       if(obj.returnData.practice) {
         var plurial = "s" ;
         if(obj.returnData.gameCanPlay + 1 <= 1) plurial = "" ;
@@ -864,11 +865,12 @@ function($){
         });
       }
       $('#quit').click(function(){
+        obj.leaveFeedback() ;
         //obj.endChanceAck();
-        if (confirm('Do you really want to exit?')) { 
-          window.location.href = 'http://google.com';
-          window.close();
-        }
+        //if (confirm('Do you really want to exit?')) { 
+          //window.close();
+          //window.location.href = 'http://google.com';
+        //}
       });
 		};
 			
@@ -1049,26 +1051,109 @@ function($){
 				obj.doneTutorial();
 				}
 			};
-	}
-   $.fn.temptationgame = function(options)
-   {
-       return this.each(function()
-       {
-           var element = $(this);
-          
-           // Return early if this element already has a plugin instance
-           if (element.data('temptationgame')) return;
+      this.leaveFeedback = function(screenNo) {
+        $("#collectorbox").hide() ;
+        $("#survival_panel").hide() ;
 
-           // pass options to plugin constructor
-           var temptationgame = new TemptationGame(this, options);
-			temptationgame.init();
-           // Store plugin object in this element's data
-           element.data('temptationgame',temptationgame);
-       });
+        $("#choice_panel").html("");
+        var feedbackHtml = 
+          "<h3>Your Feedback</h3>" +
+          "<div id='message'>" + 
+          "  <p>Please let us know about your experiences during the game.</p>" +
+          "  <div>" + 
+          "    <div class='fb_left'>How clear were the instructions?</div>" + 
+          "    <div class='fb_right'><div id='fb_instr'></div>" + 
+          "    <span class='leftSliderValue'>Not at all</span>" + 
+          "    <span class='rightSliderValue'>Very clear</span>" +
+          "  </div>" +
+          //"</div>" + 
+          "  <div>" + 
+          "    <div class='fb_left'>Did you find the game interesting?</div>" + 
+          "    <div class='fb_right'><div id='fb_inter'></div>" +
+          "    <span class='leftSliderValue'>Not at all</span>" + 
+          "    <span class='rightSliderValue'>Very interesting</span>" +
+          "  </div>" +
+          //"</div>" +
+          "  <div>" +
+          "    <div class='fb_left'>How would you characterize the pace of the game? </div>" +
+          "    <div class='fb_right'><div id='fb_speed'></div>"+
+          "    <span class='leftSliderValue'>Too slow</span>" + 
+          "    <span class='rightSliderValue'>Too fast</span>" + 
+          "  </div>" +
+          //"</div>" +
+          "  <div>" + 
+          "    <div class='fb_left'>What was your strategy during the game?</div>" +
+          "    <div class='fb_right'><input type='text' id='fb_strat' style='width:400px;'/></div>" +
+          "  </div>" +
+          "  <p>What other thoughts do you have about the game? </p>" +
+          "  <div><textarea id='fb_think' cols='80' rows='5'></textarea></div>" +
+          "</div>" +
+          "<div style='clear:both'></div>" +
+
+          "<div class='navi'>" +
+          "  <div class='begin'><button id='begin'>Submit</button></div>" +
+          "</div>" ;
+        var fbPanel = $("#choice_panel"); 
+        fbPanel.html(feedbackHtml);
+        fbPanel.css("position", "relative");
+        fbPanel.css("top", "0px");
+        fbPanel.css("left", "0px");
+        fbPanel.css("width",  "700px");
+        fbPanel.css("height", "auto");
+        fbPanel.css("padding", "10px");
+        fbPanel.css("margin", "0px auto");
+        fbPanel.parent().css("width", "700px");
+
+        var sliderOption = { min: 1, max: 5, value: 1, step: 1 };
+        $("#fb_instr").slider(sliderOption);
+        $("#fb_inter").slider(sliderOption);
+        $("#fb_speed").slider(sliderOption);
+
+        $('#begin').click(function(){
+          progress = 'SentFeedback';
+          //updateClient();
+          //track("Submit feedback", "", 5);
+          $('#begin').attr("disabled", true);
+          var instr = encodeURIComponent($("#fb_instr").slider("option", "value"));
+          var inter = encodeURIComponent($("#fb_inter").slider("option", "value"));
+          var speed = encodeURIComponent($("#fb_speed").slider("option", "value"));
+          var strat = encodeURIComponent($("#fb_strat").val());
+          var think = encodeURIComponent($("#fb_think").val());
+          $.ajax({
+            type: "POST",
+            url: "game",
+            data: { 
+              "a": "sendFeedback", 
+				      "gameId" : decodeURIComponent(obj.gameId), 
+				      "slotId" : decodeURIComponent(obj.slotId), 
+				      "workerId" : obj.workerId ? decodeURIComponent(obj.workerId) : "",
+              "instr": instr, "inter": inter, "speed": speed, "strat": strat, "think": think
+            },
+            success: function(returnData) {
+              $("#title").html("");
+              $("#message").html("<p style='font-size: 18px;font-weight: bold;height: 23px;text-align: center;'>Thank you for your feedback!</p>");
+              $("#navi").html("<div class='navi'></div>");
+            }
+          });
+        });
+
+      }
+	 };
+
+   $.fn.temptationgame = function(options) {
+     return this.each(function() {
+       var element = $(this);
+      
+       // Return early if this element already has a plugin instance
+       if (element.data('temptationgame')) return;
+
+       // pass options to plugin constructor
+       var temptationgame = new TemptationGame(this, options);
+       temptationgame.init();
+       // Store plugin object in this element's data
+       element.data('temptationgame',temptationgame);
+     });
    };
-   
-   
-
 }
 
 )(jQuery);

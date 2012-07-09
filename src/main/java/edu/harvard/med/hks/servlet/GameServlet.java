@@ -89,7 +89,6 @@ public class GameServlet extends HttpServlet {
 		if (StringUtils.isEmpty(gameId)) return;
 		String action = req.getParameter("a");
 		if (StringUtils.isEmpty(action)) return;
-
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			if (action.equals("update")) {

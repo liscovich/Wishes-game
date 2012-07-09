@@ -143,7 +143,7 @@ var intervalId = setInterval(function() {$.ajax({
           
           "<td>" + returnData.hksGames[i].exchangeRate+"</td>"+ 
           "<td>" + returnData.hksGames[i].maxRoundsNum+"</td>"+ 
-          "<td>" + linkText + "</td></tr>";
+          "<td style='width: 120px'>" + linkText + "</td></tr>";
       $('#gameTable tr:last').after(newRow);
       if (returnData.currentSlot) {
         $('#report').html(returnData.currentSlot.log);

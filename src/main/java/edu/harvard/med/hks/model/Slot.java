@@ -1,5 +1,6 @@
 package edu.harvard.med.hks.model;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
@@ -160,6 +161,7 @@ public class Slot extends AbstractTimestampEntity {
 	public void setPlayerReportJson(String report) { this.playerReportJson = report ;}
 
 	public String getPlayerReportFormatted() {
+		DecimalFormat CURR_FT = new DecimalFormat("#.00") ;
 		final SimpleDateFormat TIME_FT = new SimpleDateFormat("dd/MM/yyyy@HH:mm:ss")  ;
 		PlayerReport pReport = getPlayerReport() ;
 		if(pReport == null) return "" ;
@@ -186,10 +188,11 @@ public class Slot extends AbstractTimestampEntity {
 		
 		
 		printColumn(b, "Time", 25) ;
-		printColumn(b, "Round", 25) ;
-		printColumn(b, "Low Payoff", 15) ;
+		printColumn(b, "Round", 16) ;
+		printColumn(b, "Status", 10) ;
+		printColumn(b, "Low Payoff", 12) ;
 		printColumn(b, "Betray Payoff", 15) ;
-		printColumn(b, "High Payoff", 15) ;
+		printColumn(b, "High Payoff", 12) ;
 		printColumn(b, "Choice", 10) ;
 		printColumn(b, "Another Round", 15) ;
 		printColumn(b, "Remaining Wishes", 20) ;
@@ -205,21 +208,32 @@ public class Slot extends AbstractTimestampEntity {
 			}
 			b.append("\n") ;
 			printColumn(b, TIME_FT.format(new Date(rReport.getTime())), 25) ;
-			printColumn(b, rReport.getId(), 25) ;
-			printColumn(b, Integer.toString(rReport.getLowPayoff()), 15) ;
+			printColumn(b, rReport.getId(), 16) ;
+			printColumn(b, rReport.getStatus(), 10) ;
+			printColumn(b, Integer.toString(rReport.getLowPayoff()), 12) ;
 			printColumn(b, Integer.toString(rReport.getBetrayPayoff()), 15) ;
-			printColumn(b, Integer.toString(rReport.getHighPayoff()), 15) ;
+			printColumn(b, Integer.toString(rReport.getHighPayoff()), 12) ;
 			printColumn(b, Integer.toString(rReport.getChoice()), 10) ;
-			printColumn(b, Integer.toString(rReport.getAnotherRound()), 15) ;
+			String anotherRound  = "" ;
+      if(!Slot.Status.FINISHED.toString().equals(rReport.getStatus())) {
+        anotherRound = "" + rReport.getAnotherRound() ;
+      }
+			printColumn(b, anotherRound, 15) ;
 			printColumn(b, Integer.toString(rReport.getRemainingWishes()), 20) ;
 			printColumn(b, Integer.toString(rReport.getBalance()), 10) ;
 		}
 		b.append("\n\n") ;
 		printColumn(b, "Worker Id", 25) ;
+		printColumn(b, "Status", 25) ;
 		printColumn(b, "Total Earning", 25) ;
-		b.append("\n\n") ;
+		b.append("\n") ;
 		printColumn(b, workerId, 25) ;
-		printColumn(b, "$" + (getTempteeBonus() * game.getExchangeRate()), 25) ;
+		printColumn(b, status, 25) ;
+		double balance = 0 ;
+		if(Status.FINISHED.toString().equals(status)) {
+			balance = getTempteeBonus() * game.getExchangeRate() ;
+		}
+		printColumn(b, "$" + CURR_FT.format(balance), 25) ;
 		return b.toString() ;
 	}
 	
@@ -373,8 +387,9 @@ public class Slot extends AbstractTimestampEntity {
 	
 	static public class PlayerRoundReport {
 		private String id ;
-		private int  round ;
 		private long time ;
+		private int  round ;
+		private String status ;
 		private int  lowPayoff ;
 		private int  betrayPayoff ;
 		private int  highPayoff ;
@@ -386,11 +401,15 @@ public class Slot extends AbstractTimestampEntity {
 		public String getId() { return id ; }
 		public void   setId(String id) { this.id = id ; }
 		
+		public long getTime() { return this.time ; }
+		public void setTime(long time) { this.time = time ;}
+		
+		
 		public int getRound() { return round; }
 		public void setRound(int round) { this.round = round; }
 		
-		public long getTime() { return this.time ; }
-		public void setTime(long time) { this.time = time ;}
+		public String getStatus() { return this.status ; }
+		public void setStatus(String status) { this.status = status ; }
 		
 		public int getLowPayoff() { return lowPayoff; }
 		public void setLowPayoff(int lowPayoff) { this.lowPayoff = lowPayoff; }

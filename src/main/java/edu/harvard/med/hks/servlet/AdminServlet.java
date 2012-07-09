@@ -17,6 +17,8 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.google.gson.Gson;
 
+import edu.harvard.med.hks.model.Feedback;
+import edu.harvard.med.hks.model.Game;
 import edu.harvard.med.hks.model.Slot;
 import edu.harvard.med.hks.server.GeneralException;
 import edu.harvard.med.hks.service.AdminService;
@@ -29,22 +31,18 @@ public class AdminServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String action = req.getParameter("a");
-		if("gameReport".equals(action)) {
-			try {
+		try {
+			if("gameReport".equals(action)) {
 				String gameId = req.getParameter("gameId") ;
-				if(gameId == null) {
-					req.setAttribute("service", adminService) ;
-					req.getRequestDispatcher("AllGameReport.jsp").forward(req, resp) ;
-				} else {
-				  List<Slot> slots = adminService.findGameSlots(gameId) ;
-				  req.setAttribute("gameSlots", slots) ;
-				  req.getRequestDispatcher("GameReport.jsp").forward(req, resp) ;
-				}
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e) ;
-				PrintWriter out = resp.getWriter();
-				out.println(e.getMessage());
+				List<Slot> slots = adminService.findGameSlots(gameId) ;
+				req.setAttribute("gameSlots", slots) ;
+				req.setAttribute("service", adminService) ;
+				req.getRequestDispatcher("GameReport.jsp").forward(req, resp) ;
 			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e) ;
+			PrintWriter out = resp.getWriter();
+			out.println(e.getMessage());
 		}
 	}
 	

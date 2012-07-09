@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.net.URLDecoder ;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,8 +16,10 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import edu.harvard.med.hks.dao.FeedbackDao;
 import edu.harvard.med.hks.dao.HksGameDao;
 import edu.harvard.med.hks.dao.SlotDao;
+import edu.harvard.med.hks.model.Feedback;
 import edu.harvard.med.hks.model.Game;
 import edu.harvard.med.hks.model.Slot;
 import edu.harvard.med.hks.model.Slot.Status;
@@ -30,6 +33,7 @@ public class HksGameServiceImpl implements HksGameService {
 
 	@Autowired HksGameDao hksGameDao;
 	@Autowired private SlotDao slotDao;
+	@Autowired private FeedbackDao feedbackDao;
 
 	private boolean isClientInfoOutput = false;
 	private int roundsPlayed = 0;
@@ -102,13 +106,19 @@ public class HksGameServiceImpl implements HksGameService {
 		slot.setTempteeBonus(slot.getTempteeBonus() + slot.getCurrentBetrayPayoff());
 		appendLog(slot, "Betray and earn " + (slot.getCurrentBetrayPayoff()));
 
-		slot.setStatus(Status.PAYOFF.toString());
+		if(slot.getBlackMarkCount() < slot.getGame().getBlackMarkUpperLimit()) {
+		  slot.setStatus(Status.PAYOFF.toString());
+		} else {
+			slot.setStatus(Status.FINISHED.toString());
+		}
+		
 	  //Log player report for each round
 		Slot.PlayerReport pReport = slot.getPlayerReport() ;
 		Slot.PlayerRoundReport roundReport = pReport.getPlayerRoundReport(slot, slot.getCurrentRound(), false) ;
 		roundReport.setRemainingWishes(slot.getGame().getBlackMarkUpperLimit() - slot.getBlackMarkCount());
 		roundReport.setChoice(1) ;
 		roundReport.setBalance(slot.getTempteeBonus()) ;
+		roundReport.setStatus(slot.getStatus()) ;
 		slot.setPlayerReport(pReport) ;
 		
 		slotDao.update(slot) ;
@@ -242,11 +252,13 @@ public class HksGameServiceImpl implements HksGameService {
 			result.put("status", Status.DROPPED);
 			return result;
 		}
+		
 		if (slot.isSurvival()) {
 		  //Log player, finish a round
 			Slot.PlayerReport pReport = slot.getPlayerReport() ;
 			Slot.PlayerRoundReport roundReport = pReport.getPlayerRoundReport(slot, slot.getCurrentRound(), false) ;
 			roundReport.setAnotherRound(1) ;
+			roundReport.setStatus(slot.getStatus()) ;
 			slot.setCurrentRound(slot.getCurrentRound() + 1);
 			slot.setStatus(Status.PLAY.toString());
 			samplingNewRound(slot);
@@ -255,6 +267,7 @@ public class HksGameServiceImpl implements HksGameService {
 			roundReport.setLowPayoff(slot.getGame().getRewardPayoff());
 			roundReport.setBetrayPayoff(slot.getCurrentBetrayPayoff() - roundReport.getLowPayoff()) ;
 			roundReport.setHighPayoff(slot.getCurrentBetrayPayoff());
+			roundReport.setStatus(slot.getStatus()) ;
 			slot.setPlayerReport(pReport) ;
 			slotDao.update(slot);
 		} else {
@@ -359,6 +372,7 @@ public class HksGameServiceImpl implements HksGameService {
 		roundReport.setChoice(0) ;
 		roundReport.setRemainingWishes(slot.getGame().getBlackMarkUpperLimit() - slot.getBlackMarkCount());
 		roundReport.setBalance(slot.getTempteeBonus()) ;
+		roundReport.setStatus(slot.getStatus()) ;
 		slot.setPlayerReport(pReport) ;
 		
 		slotDao.update(slot);
@@ -374,16 +388,37 @@ public class HksGameServiceImpl implements HksGameService {
 			result.put("status", Status.DROPPED);
 			return result;
 		}
+		
 		Slot slot = byProperty.get(0);
 		if(!slot.getGame().getGameId().equals(req.getParameter("gameId"))) {
 			result.put("status", Status.DROPPED);
 			return result;
 		}
-		String feedback = req.getParameter("feedback");
-		appendLog(slot, "Feedback from player:\n" + feedback);
-		slot.setStatus(Status.THANKS.toString());
-		slotDao.update(slot);
-
+		
+		Map<String, Object> rect = new HashMap<String, Object>();
+		rect.put("slot", slot);
+		List<Feedback> feedbacks = feedbackDao.getByProperties(rect, "slot", true);
+		Feedback feedback = null ;
+		if(feedbacks.size() == 0) {
+			feedback = new Feedback() ;
+			feedback.setGame(slot.getGame()) ;
+			feedback.setSlot(slot) ;
+		} else {
+			feedback = feedbacks.get(0); 
+		}
+		feedback.setInstruction(Integer.parseInt(req.getParameter("instr"))) ;
+		feedback.setInteresting(Integer.parseInt(req.getParameter("inter"))) ;
+		feedback.setSpeed(Integer.parseInt(req.getParameter("speed"))) ;
+		String strat = URLDecoder.decode(req.getParameter("strat")) ;
+		feedback.setStrategy(strat) ;
+		String think = URLDecoder.decode(req.getParameter("think")) ;
+		feedback.setThoughts(think) ;
+		if(feedbacks.size() == 0) {
+		  feedbackDao.addObject(feedback) ;
+		} else {
+			feedbackDao.update(feedback) ;
+		}
+		appendLog(slot, "Feedback from player:\n" + feedback.getThoughts());
 		outputSlotData(slot);
 		return result;
 	}
@@ -490,6 +525,7 @@ public class HksGameServiceImpl implements HksGameService {
 			roundReport.setLowPayoff(slot.getGame().getRewardPayoff());
 			roundReport.setBetrayPayoff(slot.getCurrentBetrayPayoff() - roundReport.getLowPayoff()) ;
 			roundReport.setHighPayoff(slot.getCurrentBetrayPayoff());
+			roundReport.setStatus(slot.getStatus()) ;
 			slot.setPlayerReport(pReport) ;
 		}
 		slotDao.update(slot);

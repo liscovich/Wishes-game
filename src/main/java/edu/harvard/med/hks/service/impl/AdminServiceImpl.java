@@ -12,8 +12,10 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import edu.harvard.med.hks.dao.FeedbackDao;
 import edu.harvard.med.hks.dao.HksGameDao;
 import edu.harvard.med.hks.dao.SlotDao;
+import edu.harvard.med.hks.model.Feedback;
 import edu.harvard.med.hks.model.Game;
 import edu.harvard.med.hks.model.Slot;
 import edu.harvard.med.hks.model.Slot.Status;
@@ -24,6 +26,7 @@ import edu.harvard.med.hks.service.AdminService;
 public class AdminServiceImpl implements AdminService {
 	@Autowired HksGameDao hksGameDao;
 	@Autowired private SlotDao slotDao;
+	@Autowired private FeedbackDao feedbackDao;
 	
 	@Override
 	public void createHksGame(HttpServletRequest req) throws GeneralException {
@@ -78,10 +81,11 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public Map<String, Object> getHksGames(HttpServletRequest req) throws GeneralException {
+		String gameId = req.getParameter("gameId");
 		List<Game> all = hksGameDao.getAllWithOrder("updated", true);
 		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
 		Map<String, Object> result = new HashMap<String, Object>();
-		String gameId = req.getParameter("gameId");
+		
 		for (Game hksGame : all) {
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("rewardPayoff", hksGame.getRewardPayoff());
@@ -121,7 +125,19 @@ public class AdminServiceImpl implements AdminService {
 					String slotId = req.getParameter("slotId");
 					if (!StringUtils.isEmpty(slotId) && slotId.equals(slot.getSlotId())) {
 						Map<String, Object> currentSlot = new HashMap<String, Object>();
-						currentSlot.put("report", slot.getPlayerReportFormatted());
+						String report = slot.getPlayerReportFormatted() ;
+						Feedback fb = findFeedback(slot) ;
+						if(fb != null) {
+							StringBuilder b = new StringBuilder() ;
+							b.append("Feedback: ") ;
+							b.append("Clarity of instructions(0 = not clear, 5 = clear) = ").append(fb.getInstruction()).append("; ").
+	               append("Interesting( 0 = not interesting, 5 = very interesting) = ").append(fb.getInteresting()).append("; ").
+	               append("Speed (0 = too slow, 5 = too fast) = ").append(fb.getSpeed()).append("; ").
+	               append("Strategy = ").append(fb.getStrategy()).append("\n") ;
+	             b.append("Think: ").append(fb.getThoughts()) ;
+	             report += "\n\n" + b.toString() ;
+						}
+						currentSlot.put("report", report);
 						if (slot.getLog() == null) {
 							currentSlot.put("log", new String());
 						} else {
@@ -137,6 +153,7 @@ public class AdminServiceImpl implements AdminService {
 		return result ;
 	}
 	
+	
 	public List<Slot> findGameSlots(String gameId) throws GeneralException {
 		List<Game> byProperty = hksGameDao.getByProperty("gameId", gameId);
 		if (byProperty.isEmpty()) return null;
@@ -147,7 +164,31 @@ public class AdminServiceImpl implements AdminService {
 		List<Slot> slots = slotDao.getByProperties(rect, "slotNumber", true);
 		return slots;
 	}
+	
+	public List<Feedback> findFeedbacks(Game game) throws GeneralException {
+		if(game == null) return new ArrayList<Feedback>() ;
+		Map<String, Object> rect = new HashMap<String, Object>();
+		rect.put("game", game);
+		List<Feedback> feedbacks = feedbackDao.getByProperties(rect, "slot", true);
+		return feedbacks;
+	}
+	
+	public Feedback findFeedback(Slot slot) throws GeneralException {
+		if(slot == null) return null ;
+		Map<String, Object> rect = new HashMap<String, Object>();
+		rect.put("slot", slot);
+		List<Feedback> feedbacks = feedbackDao.getByProperties(rect, "slot", true);
+		if(feedbacks.size() == 0) return null ;
+		return feedbacks.get(0);
+	}
 
+	public Game getGame(String gameId) throws GeneralException {
+		List<Game> byProperty = hksGameDao.getByProperty("gameId", gameId);
+		if (byProperty.isEmpty()) return null;
+		Game game = byProperty.get(0);
+		return game;
+	}
+	
 	public List<Game> getAllGames() throws GeneralException { return hksGameDao.getAll() ; }
 	
 	public void setHksGameDao(HksGameDao hksGameDao) { this.hksGameDao = hksGameDao; }
