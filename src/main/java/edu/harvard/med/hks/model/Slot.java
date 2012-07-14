@@ -225,7 +225,7 @@ public class Slot extends AbstractTimestampEntity {
 		b.append("\n\n") ;
 		printColumn(b, "Worker Id", 25) ;
 		printColumn(b, "Status", 25) ;
-		printColumn(b, "Total Earning", 25) ;
+		printColumn(b, "Total Earnings", 25) ;
 		b.append("\n") ;
 		printColumn(b, workerId, 25) ;
 		printColumn(b, status, 25) ;

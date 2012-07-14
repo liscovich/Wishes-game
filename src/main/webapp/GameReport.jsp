@@ -124,7 +124,7 @@
     <%  Slot slot = slots.get(i) ; %>
     <%  if("INIT".equals(slot.getStatus())) continue ; %>
     <%  Iterator<Map.Entry<String, PlayerRoundReport>> itr = slot.getPlayerReport().getRoundReports().entrySet().iterator() ; %>
-      <table style="margin: 20px 10px">
+      <table style="margin: 10px">
         <tr>
           <th>Time</th>
           <th>Round</th>
@@ -160,8 +160,9 @@
               <td><%=rReport.getBalance()%></td>
             </tr>
         <%}%>
-        <tr>
-          <td colspan="10" style="text-align: left">
+        </table>
+        <div style="padding-left: 10px; margin-bottom: 50px">
+          <div>
             <%
               double balance = 0 ;
               if(Slot.Status.FINISHED.toString().equals(slot.getStatus())) {
@@ -169,11 +170,9 @@
               }
             %>
             Slot = <%=slot.getSlotNumber()%>; Worker Id =<%=slot.getWorkerId()%>;
-            Earning: $<%= CURR_FT.format(balance)%>
-          </td>
-        </tr>
-        <tr>
-          <td colspan="10" style="text-align: left">
+            Earnings: $<%= CURR_FT.format(balance)%>
+          </div>
+          <div>
             <%
               Feedback fb = service.findFeedback(slot);
             %>
@@ -186,9 +185,8 @@
                <br/>
                Think: <%=fb.getThoughts()%>
             <%}%>
-          </td>
-        </tr>
-        </table>
+          </div>
+        </div>
     <%}%>
   </body>
 </html>

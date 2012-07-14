@@ -274,11 +274,11 @@ function($){
 		'step' : 8,
 		'content': ['<div class="label">To recap:<ol>'+
 					'<li>You play multiple rounds.</li>' +
-					'<li>In each round, you choose either the Low Payoff  card that gives you ' + ( obj.lowPayoffPoint || "Low Payoff" ) + ' points, or the High Payoff card that gives you between ' + ( obj.lowPayoffPoint || "Low Payoff" ) + ' and ' + (( obj.maxBetrayPayoff + obj.lowPayoffPoint )*1) + ' points but uses up one wish.</li>' +
+					'<li>In each round, you choose either the Low Payoff  card that gives you <b>' + ( obj.lowPayoffPoint || "Low Payoff" ) + '</b> points, or the High Payoff card that gives you between <b>' + ( obj.lowPayoffPoint || "Low Payoff" ) + '</b> and <b>' + (( obj.maxBetrayPayoff + obj.lowPayoffPoint )*1) + '</b> points but uses up one wish.</li>' +
 					'<li>If you use up all of your wishes, the game ends.</li>' +
-					'<li>After every round, you spin the wheel of fortune, which can also end the game. There is a ' + Math.round(100 - obj.endChance * 100) + '% chance that the game continues and a ' + Math.round(obj.endChance * 100) + '% chance it ends.</li>' +
+					'<li>After every round, you spin the wheel of fortune, which can also end the game. There is a <b>' + Math.round(100 - obj.endChance * 100) + '%</b> chance that the game continues and a <b>' + Math.round(obj.endChance * 100) + '%</b> chance it ends.</li>' +
 					'<li>Your goal is to earn as many points as you can before the game ends. You do not get any points for left-over wishes.</li>' +
-					'<li>At the end of the game, we will convert your points into US dollars at the rate of $' + (obj.mturkRate || "-mturkRate-") +' per point, and add them to your MTurk account.</li>' +
+					'<li>At the end of the game, we will convert your points into US dollars at the rate of <b>' + ((obj.mturkRate * 100) || "-mturkRate-") +'</b> cents per point, and add them to your MTurk account.</li>' +
 					'</ol></div>'],
 		'figure' : '',
 		nextButtonText : 'Ok! »',
@@ -374,8 +374,8 @@ function($){
             }
           break;
         case "FINISHED":
-          obj.updateBlackMarks();
           if($('#collectorbox').size() == 0) obj.initGame();
+          obj.updateBlackMarks();
           obj.gameOver();
           break;
         case "THANKS":
@@ -702,8 +702,10 @@ function($){
 			.animate({
 				'top' : top
 				},1000,'easeOutQuad',function(){
-					if($(this).attr('id')==cardType){
-						obj.updateCollectionBoxEarning(parseInt(obj.tempteeBonus, 10) + parseInt(points, 10) , cardType);
+					if($(this).attr('id')==cardType) { 
+            var timeout = 1000/points ;
+            if(timeout > 50) timeout = 50 ;
+						obj.updateCollectionBoxEarning(parseInt(obj.tempteeBonus, 10) + parseInt(points, 10) , cardType, timeout);
 						//console.log(parseInt(obj.tempteeBonus, 10) + parseInt(points, 10));
 						if(cardType=='high_payoff'){obj.lastAction='betray';}
 						if(cardType=='low_payoff'){obj.lastAction='reward';}
@@ -726,50 +728,46 @@ function($){
 					if(i <= n) obj.collectorBox.find('.blackmark_bars').find('.blackmark_bar:eq('+ (i-1) +')').removeClass('active').addClass('inactive');
 					if(i == n && ( cardType=='highPayoff' )) obj.collectorBox.find('.blackmark_bars').find('.blackmark_bar:eq('+ (i-1) +')').removeClass('active').css({'width':0}).addClass('inactive').animate({'width':110},500);
 					if(i == n && ( cardType!='highPayoff' )) obj.collectorBox.find('.blackmark_bars').find('.blackmark_bar:eq('+ (i-1) +')').removeClass('active').addClass('inactive');
-					}
-				else{
+			  } else {
 					obj.collectorBox.find('.blackmark_bars').find('.blackmark_bar:eq('+ (i-1) +')').removeClass('active').addClass('inactive');
-					}
 				}
+			}
 			obj.collectorBox.find('#blackmark_count').text('('+ (obj.blackMarkUpperLimit-obj.blackMarkCount) +'/'+ obj.blackMarkUpperLimit +')');;
-			};
+		};
 			
-		this.updateCollectionBoxEarning = function(newEarning, cardType){
-			if(obj.tempteeBonus < newEarning)
-				obj.tempteeBonus++;
-			if(obj.tempteeBonus > newEarning)
-				obj.tempteeBonus--;
+		this.updateCollectionBoxEarning = function(newEarning, cardType, timeout){
+			if(obj.tempteeBonus < newEarning) obj.tempteeBonus++;
+			if(obj.tempteeBonus > newEarning) obj.tempteeBonus--;
 			obj.collectorBox.find('.earnings').html('<span class="earning">'+obj.tempteeBonus + "</span> " + obj.units);
-			if(obj.tempteeBonus != newEarning){
-				setTimeout(function(){
-					obj.updateCollectionBoxEarning(newEarning);
-					},50);
-				}
- 			else{
-				if(obj.lastAction=='betray' && obj.returnData.status != 'TUTORIAL'){obj.betray();}
-				if(obj.lastAction=='reward' && obj.returnData.status != 'TUTORIAL'){obj.reward();}
-				if(obj.returnData.status == 'TUTORIAL'){
-					obj.updateBlackMarks(cardType);
-					//changes to be done if in tutorial mode
-					if(obj.returnData.status == 'TUTORIAL'){
-						$('#tutorial_next').css({'visibility' : 'visible'});
-						$('.hide-on-click').css({'visibility' : 'hidden'});
-						}
-					}
-				}
-			};
+      if(obj.tempteeBonus != newEarning){
+        setTimeout(function(){
+          obj.updateCollectionBoxEarning(newEarning,cardType, timeout);
+        }, timeout);
+      } else{
+        if(obj.lastAction=='betray' && obj.returnData.status != 'TUTORIAL'){obj.betray();}
+        if(obj.lastAction=='reward' && obj.returnData.status != 'TUTORIAL'){obj.reward();}
+        if(obj.returnData.status == 'TUTORIAL'){
+          obj.updateBlackMarks(cardType);
+          //changes to be done if in tutorial mode
+          if(obj.returnData.status == 'TUTORIAL'){
+            $('#tutorial_next').css({'visibility' : 'visible'});
+            $('.hide-on-click').css({'visibility' : 'hidden'});
+          }
+        }
+      }
+    };
 		
 		this.betray = function(){
-			  $.ajax({
-				type: "POST",
-				url: "game",
-				data: obj.getPostData("betray"),
-				success: function(returnData){
-				  //Game.currentStatus = "PAYOFF";
-				  obj.processReturnedData(returnData);
-				}
-			  });
-			};
+      $.ajax({
+      type: "POST",
+      url: "game",
+      data: obj.getPostData("betray"),
+      success: function(returnData){
+        //Game.currentStatus = "PAYOFF";
+        obj.processReturnedData(returnData);
+      }
+      });
+    };
 			
 		this.reward = function(){
 			  $.ajax({
@@ -834,7 +832,14 @@ function($){
       if(obj.returnData.practice) {
         var plurial = "s" ;
         if(obj.returnData.gameCanPlay + 1 <= 1) plurial = "" ;
-			  var $gameOverMessage = $('<div id="game_over"><h4>Practice game is over</h4><div class="label">You\'ve earned ' + obj.returnData.tempteeBonus +' points!</div><div class="label">Now you will play the real game.</div><div class="label">You will be able to play it up to ' + (obj.returnData.gameCanPlay + 1)+ ' time' + plurial +'.</div><div class="label"><br/><button id="play_now">Begin</button></div></div>');
+			  var $gameOverMessage = $(
+          '<div id="game_over">' +
+            '<h4>Practice game is over</h4>'+
+            '<div class="label">You\'ve earned <b>' + obj.returnData.tempteeBonus +'</b> points!</div>' +
+            '<div class="label">Now you will play the real game.</div> '+
+            '<div class="label">You will be able to play it up to <b>' + (obj.returnData.gameCanPlay + 1)+ '</b> time' + plurial +'.</div> '+
+            '<div class="label"><br/><button id="play_now">Begin</button></div> ' + 
+          '</div>');
 			  obj.choicePanel.html($gameOverMessage) ;
 			  obj.showChoicePanel();
 			   //onclick for 'Play again' button
@@ -851,10 +856,28 @@ function($){
       
       var plurial = "s" ;
       if(obj.returnData.gameCanPlay <= 1) plurial = "" ;
-			var $gameOverMessage = $('<div id="game_over"><h4>Game Over</h4><div class="label">Thank you for playing.</div><div class="label">You\'ve earned <b>'+ obj.returnData.tempteeBonus +' points!</b></div><div class="label">Your earnings in the current game have been recorded and will be deposited to your MTurk account within 14 business days. You can play this game ' + obj.returnData.gameCanPlay +' more time' +plurial+ '.</div>' + buttons + '</div>');
+      var earnings = obj.returnData.tempteeBonus * obj.returnData.mturkRate ;
+      earnings = earnings.toFixed(2);
+			var $gameOverMessage = $(
+          '<div id="game_over"> ' +
+            '<h4>Game Over</h4>' + 
+            '<div class="label">Thank you for playing.</div>' +
+            '<div class="label" style="text-align: center">You\'ve earned <b>'+ obj.returnData.tempteeBonus +'</b> points in this game!</div> ' + 
+            //'<div class="label">Your earnings in the current game have been recorded and will be deposited to your MTurk account within 14 business days.<div> ' + 
+            '<div class="label" style="text-align: left">As promised, the bonus of ' + 
+              '<div style="text-align: center; padding: 10px 0px"><b>'+ obj.returnData.tempteeBonus + '</b> points x <b>$' + obj.returnData.mturkRate + '</b> per point = <b>$' + earnings + '</b></div> ' + 
+              'will be deposited to your MTurk account within 14 business days.' +
+            '</div> ' + 
+            '<div class="label" style="text-align: left"> You can play this game <b>' + obj.returnData.gameCanPlay +'</b> more time' +plurial+ '.</div>' + 
+            buttons + 
+          '</div>');
 
 			obj.choicePanel.html($gameOverMessage) ;
+
+      $("#choice_panel").css("height", "265px");
+
 			obj.showChoicePanel();
+
       //onclick for 'Play again' button
       if(!obj.returnData.lastGameForPlayer) {
         $('#play_again').click(function(){
@@ -906,20 +929,12 @@ function($){
 					title : true, //should this show title like Card 1
 					cardType : 'low_payoff'
 					},
-				card2 : {
-					visible : true,
-					active : true,
-					content :true,
-					title : true,
-					cardType : 'high_payoff'
-					},
-				collectorBox : {
-					visible : true,
-					title : true,
-					content : true,
-					downArrow : true,
-					otherPlayer : false
-					}
+          card2 : {
+            visible : true, active : true, content :true, title : true, cardType : 'high_payoff'
+          },
+          collectorBox : {
+            visible : true, title : true, content : true, downArrow : true, otherPlayer : false
+          }
 				}, dummySettings || {});
 				//console.log(dummySettings);
 				//create figure container
@@ -941,116 +956,123 @@ function($){
 				
 				return $figure;
 			};
-		this.tutorial = function(screenNo) {
-			//debugger
-			var obj = this;
-			if(screenNo < obj.tutorialScreen().length){
-				obj.screenNo = screenNo;
-				var dataSet = obj.tutorialScreen()[screenNo];
-				if(elem.find('#tutorial').size()==0){
-					elem.html('');
-					elem.append('<div id="tutorial"></div>');
-					}
-				var $tutorial_panel = $('<div id="tutorial_panel"/>');
-					var $tutorial_head = $('<h3>Tutorial</h3>');
-				//Add heading
-				$tutorial_panel.append($tutorial_head);
-				//Add content
-				for(var i=0 ; i < dataSet.content.length ; i++){
-					$tutorial_panel.append(dataSet.content[i]);
-					}
-				if(screenNo == 0){
-					//Add next step button
-					var $next_button = $('<button id="tutorial_next" />');
-						$next_button.text(dataSet.nextButtonText);
-						$next_button.click(function(){
-							$(this).attr('disabled', 'disabled');
-							obj.tutorial(screenNo + 1);
-							return false;
-							});
-					$tutorial_panel.append($next_button);
-					}
-				if(screenNo == obj.tutorialScreen().length - 1){
-					//Add next step button
-					var $next_button = $('<button id="tutorial_next" />');
-						$next_button.text("Begin");
-						$next_button.click(function(){
-							$(this).attr('disabled', 'disabled');
-							obj.tutorial(screenNo + 1);
-							return false;
-							});
-					$tutorial_panel.append($next_button);
-					}
-				//Add prev step button
-				if(screenNo > 0 && screenNo <  obj.tutorialScreen().length - 1){
-					//Add next step link
-					var $next_button = $('<a href="#" id="tutorial_next" />');
-						$next_button.text(dataSet.nextButtonText);
-						//check if we have clickable lements if yes show the next button only on clicking the lement logig done in dropCard()
-						if( dataSet.figure &&  ( dataSet.figure.card1.active || dataSet.figure.card2.active || dataSet.figure.rouletteActive ) ){
-							$next_button.css({'visibility' : 'hidden'});
-							}
-						$next_button.click(function(){
-							//$(this).attr('disabled', 'disabled');
-							obj.tutorial(screenNo + 1);
-							return false;
-							});
-					$tutorial_panel.append($next_button);
-					//Add prev step link
-					var $prev_button = $('<a href="#" id="tutorial_prev" />');
-						$prev_button.text(dataSet.prevButtonText);
-						$prev_button.click(function(){
-							obj.tutorial(screenNo - 1);
-							//$(this).attr('disabled', 'disabled');
-							return false;
-							});
-					if(dataSet.prevButtonText!='')$tutorial_panel.append($prev_button);
-					}
-				//create figure
-				if(dataSet.figure != '')$figure = obj.generateDummyApp(dataSet.figure);
-				else $figure = $('<div id="figure"/>');
-					
-				elem.find('#tutorial').remove();
-				elem.append($tutorial_panel,$figure);
-				$tutorial_panel.css({'top':$tutorial_panel.outerHeight()*-1});
-				//collectorBox auto height only after adding to dom
-				if($('#collectorbox_table').size() > 0)$('#collectorbox_table').css({
-					'top' : $('#collectorbox_front').position().top + $('#collectorbox_front').outerHeight() -20
-					});
-				$figure.hide();
-				//show up tutorial panel and figure by animating
-				$tutorial_panel.animate({top:-2},400,function(){
-					$figure.fadeIn(500,function(){
-						
-						});
-					});
-				//Add roulette
-				if($('#roulette').size() > 0){
-					//obj.endChance = .4;
-					obj.notContinueSampling = 600;
-					obj.survival = true;
-					$('#roulette').wrap('<div class="roulette_wrap" style="width:100px;margin:auto;"/>');
-					obj.createWheelOfFortune('roulette','spinner');
-					}
-				if($('#roulette1').size() > 0){
-					//obj.endChance = .4;
-					obj.notContinueSampling = (999 -(999 * obj.endChance)) / 2;
-					obj.survival = true;
-					$('#roulette1').wrap('<div class="roulette_wrap" style="width:100px;margin:auto;"/>');
-					obj.createWheelOfFortune('roulette1','',true);
-					}
-				if($('#roulette2').size() > 0){
-					//obj.endChance = .4;
-					obj.notContinueSampling = 999 * obj.endChance /2;
-					obj.survival = false;
-					$('#roulette2').wrap('<div class="roulette_wrap" style="width:100px;margin:auto;"/>');
-					setTimeout(function(){obj.createWheelOfFortune('roulette2','',true);},200);
-					}
-				}
-			else{
-				obj.doneTutorial();
-				}
-			};
+    this.tutorial = function(screenNo) {
+      //debugger
+      var obj = this;
+      if(screenNo < obj.tutorialScreen().length) {
+        //alway show the begining tempteeBonus, and the remaining whishes
+        if(obj.origTempteeBonus == null) {
+          obj.origTempteeBonus = obj.tempteeBonus;
+        } else {
+          obj.tempteeBonus = obj.origTempteeBonus;
+          obj.blackMarkCount = 0 ;
+        }
+        obj.screenNo = screenNo;
+        var dataSet = obj.tutorialScreen()[screenNo];
+        if(elem.find('#tutorial').size()==0){
+          elem.html('');
+          elem.append('<div id="tutorial"></div>');
+        }
+        var $tutorial_panel = $('<div id="tutorial_panel"/>');
+        var $tutorial_head = $('<h3>Tutorial</h3>');
+        //Add heading
+        $tutorial_panel.append($tutorial_head);
+        //Add content
+        for(var i=0 ; i < dataSet.content.length ; i++){
+          $tutorial_panel.append(dataSet.content[i]);
+        }
+        if(screenNo == 0) {
+          //Add next step button
+          var $next_button = $('<button id="tutorial_next" />');
+          $next_button.text(dataSet.nextButtonText);
+          $next_button.click(function(){
+            $(this).attr('disabled', 'disabled');
+            obj.tutorial(screenNo + 1);
+            return false;
+          });
+          $tutorial_panel.append($next_button);
+        }
+        if(screenNo == obj.tutorialScreen().length - 1){
+          //Add next step button
+          var $next_button = $('<button id="tutorial_next" />');
+          $next_button.text("Begin");
+          $next_button.click(function() {
+            $(this).attr('disabled', 'disabled');
+            obj.tutorial(screenNo + 1);
+            return false;
+          });
+          $tutorial_panel.append($next_button);
+        }
+        //Add prev step button
+        if(screenNo > 0 && screenNo <  obj.tutorialScreen().length - 1){
+          //Add next step link
+          var $next_button = $('<a href="#" id="tutorial_next" />');
+          $next_button.text(dataSet.nextButtonText);
+          //check if we have clickable lements if yes show the next button only on clicking the lement logig done in dropCard()
+          if( dataSet.figure &&  ( dataSet.figure.card1.active || dataSet.figure.card2.active || dataSet.figure.rouletteActive ) ){
+            $next_button.css({'visibility' : 'hidden'});
+          }
+          $next_button.click(function(){
+            //$(this).attr('disabled', 'disabled');
+            obj.tutorial(screenNo + 1);
+            return false;
+          });
+          $tutorial_panel.append($next_button);
+          //Add prev step link
+          var $prev_button = $('<a href="#" id="tutorial_prev" />');
+          $prev_button.text(dataSet.prevButtonText);
+          $prev_button.click(function(){
+            obj.tutorial(screenNo - 1);
+            //$(this).attr('disabled', 'disabled');
+            return false;
+          });
+          if(dataSet.prevButtonText!='')$tutorial_panel.append($prev_button);
+        }
+        //create figure
+        if(dataSet.figure != '') $figure = obj.generateDummyApp(dataSet.figure);
+        else $figure = $('<div id="figure"/>');
+
+        elem.find('#tutorial').remove();
+        elem.append($tutorial_panel,$figure);
+        $tutorial_panel.css({'top':$tutorial_panel.outerHeight()*-1});
+        //collectorBox auto height only after adding to dom
+        if($('#collectorbox_table').size() > 0)$('#collectorbox_table').css({
+          'top' : $('#collectorbox_front').position().top + $('#collectorbox_front').outerHeight() -20
+        });
+        $figure.hide();
+        //show up tutorial panel and figure by animating
+        $tutorial_panel.animate({top:-2},400,function(){
+          $figure.fadeIn(500,function(){
+
+          });
+        });
+        //Add roulette
+        if($('#roulette').size() > 0){
+          //obj.endChance = .4;
+          obj.notContinueSampling = 600;
+          obj.survival = true;
+          $('#roulette').wrap('<div class="roulette_wrap" style="width:100px;margin:auto;"/>');
+          obj.createWheelOfFortune('roulette','spinner');
+        }
+        if($('#roulette1').size() > 0){
+          //obj.endChance = .4;
+          obj.notContinueSampling = (999 -(999 * obj.endChance)) / 2;
+          obj.survival = true;
+          $('#roulette1').wrap('<div class="roulette_wrap" style="width:100px;margin:auto;"/>');
+          obj.createWheelOfFortune('roulette1','',true);
+        }
+        if($('#roulette2').size() > 0){
+          //obj.endChance = .4;
+          obj.notContinueSampling = 999 * obj.endChance /2;
+          obj.survival = false;
+          $('#roulette2').wrap('<div class="roulette_wrap" style="width:100px;margin:auto;"/>');
+          setTimeout(function(){obj.createWheelOfFortune('roulette2','',true);},200);
+        }
+      } else {
+        obj.doneTutorial();
+      }
+
+    };
       this.leaveFeedback = function(screenNo) {
         $("#collectorbox").hide() ;
         $("#survival_panel").hide() ;
@@ -1083,10 +1105,15 @@ function($){
           //"</div>" +
           "  <div>" + 
           "    <div class='fb_left'>What was your strategy during the game?</div>" +
-          "    <div class='fb_right'><input type='text' id='fb_strat' style='width:400px;'/></div>" +
+          //"    <div class='fb_right'><input type='text' id='fb_strat' style='width:400px;'/></div>" +
+          "    <div class='fb_right'><textarea type='text' id='fb_strat' style='width:400px;font-family: Verdana,Sans-Serif; font-size: 12px;' rows='3'></textarea></div>" +
           "  </div>" +
-          "  <p>What other thoughts do you have about the game? </p>" +
-          "  <div><textarea id='fb_think' cols='80' rows='5'></textarea></div>" +
+          "  <div>" + 
+          "    <div class='fb_left'>What other thoughts do you have about the game?</div>" +
+          "    <div class='fb_right'><input id='fb_think' style='width: 400px'></div>" +
+          "  </div>" +
+          //"  <p>What other thoughts do you have about the game? </p>" +
+          //"  <div><textarea style='font-family: Verdana,Sans-Serif; font-size: 12px;' id='fb_think' cols='80' rows='5'></textarea></div>" +
           "</div>" +
           "<div style='clear:both'></div>" +
 

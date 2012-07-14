@@ -11,6 +11,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 public class Game extends AbstractTimestampEntity {
 	@NotEmpty
 	private String gameId;
+	
 	@OneToMany(mappedBy = "game")
 	private List<Slot> slots;
 	/**

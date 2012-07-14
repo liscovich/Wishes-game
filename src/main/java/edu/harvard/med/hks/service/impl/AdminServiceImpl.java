@@ -73,6 +73,12 @@ public class AdminServiceImpl implements AdminService {
 		if (!byProperty.isEmpty()) {
 			Game game = byProperty.get(0);
 			for (Slot slot : game.getSlots()) {
+				Map<String, Object> rect = new HashMap<String, Object>();
+				rect.put("slot", slot);
+				List<Feedback> feedbacks = feedbackDao.getByProperties(rect, "slot", true);
+				for(Feedback fb : feedbacks) {
+				  feedbackDao.deleteObject(fb) ;
+				}
 				slotDao.deleteObject(slot);
 			}
 			hksGameDao.deleteObject(game);
