@@ -349,7 +349,7 @@ function($){
         obj.syncWithServer();
         switch (obj.returnData.status) {
         case "TUTORIAL":
-          obj.tutorial(0);
+          obj.tutorial(0, 'Begin');
           break;
         case "PLAY":
           if (obj.returnData.blackMarkCount < obj.returnData.blackMarkUpperLimit) {
@@ -400,6 +400,7 @@ function($){
 
 			obj.maxBetrayPayoff = obj.returnData.maxBetrayPayoff ;
 			obj.mturkRate = obj.returnData.mturkRate ;
+			obj.feedbackBonus = obj.returnData.feedbackBonus ;
 			
 			obj.blackMarkUpperLimit = obj.returnData.blackMarkUpperLimit;
 			obj.blackMarkCount = obj.returnData.blackMarkCount;
@@ -865,7 +866,7 @@ function($){
             '<div class="label" style="text-align: center">You\'ve earned <b>'+ obj.returnData.tempteeBonus +'</b> points in this game!</div> ' + 
             //'<div class="label">Your earnings in the current game have been recorded and will be deposited to your MTurk account within 14 business days.<div> ' + 
             '<div class="label" style="text-align: left">As promised, the bonus of ' + 
-              '<div style="text-align: center; padding: 10px 0px"><b>'+ obj.returnData.tempteeBonus + '</b> points x <b>$' + obj.returnData.mturkRate + '</b> per point = <b>$' + earnings + '</b></div> ' + 
+              '<div style="text-align: center; padding: 10px 0px"><b>'+ obj.returnData.tempteeBonus + '</b> points x <b>' + (obj.returnData.mturkRate * 100) + '</b> cents per point = <b>$' + earnings + '</b></div> ' + 
               'will be deposited to your MTurk account within 14 business days.' +
             '</div> ' + 
             '<div class="label" style="text-align: left"> You can play this game <b>' + obj.returnData.gameCanPlay +'</b> more time' +plurial+ '.</div>' + 
@@ -956,7 +957,7 @@ function($){
 				
 				return $figure;
 			};
-    this.tutorial = function(screenNo) {
+    this.tutorial = function(screenNo, tutorialAction) {
       //debugger
       var obj = this;
       if(screenNo < obj.tutorialScreen().length) {
@@ -987,7 +988,7 @@ function($){
           $next_button.text(dataSet.nextButtonText);
           $next_button.click(function(){
             $(this).attr('disabled', 'disabled');
-            obj.tutorial(screenNo + 1);
+            obj.tutorial(screenNo + 1, 'Next');
             return false;
           });
           $tutorial_panel.append($next_button);
@@ -998,7 +999,7 @@ function($){
           $next_button.text("Begin");
           $next_button.click(function() {
             $(this).attr('disabled', 'disabled');
-            obj.tutorial(screenNo + 1);
+            obj.tutorial(screenNo + 1, 'Next');
             return false;
           });
           $tutorial_panel.append($next_button);
@@ -1014,7 +1015,7 @@ function($){
           }
           $next_button.click(function(){
             //$(this).attr('disabled', 'disabled');
-            obj.tutorial(screenNo + 1);
+            obj.tutorial(screenNo + 1, 'Next');
             return false;
           });
           $tutorial_panel.append($next_button);
@@ -1022,7 +1023,7 @@ function($){
           var $prev_button = $('<a href="#" id="tutorial_prev" />');
           $prev_button.text(dataSet.prevButtonText);
           $prev_button.click(function(){
-            obj.tutorial(screenNo - 1);
+            obj.tutorial(screenNo - 1, 'Back');
             //$(this).attr('disabled', 'disabled');
             return false;
           });
@@ -1068,12 +1069,30 @@ function($){
           $('#roulette2').wrap('<div class="roulette_wrap" style="width:100px;margin:auto;"/>');
           setTimeout(function(){obj.createWheelOfFortune('roulette2','',true);},200);
         }
+        obj.trackTutorial(screenNo, tutorialAction) ;
       } else {
         obj.doneTutorial();
       }
-
     };
-      this.leaveFeedback = function(screenNo) {
+
+    this.trackTutorial = function(screenNo, tutorialAction) {
+      $.ajax({
+        type: "POST",
+          url: "game",
+          data: { 
+            "a": "trackTutorial", 
+            "gameId" : decodeURIComponent(obj.gameId), 
+            "slotId" : decodeURIComponent(obj.slotId), 
+            "workerId" : obj.workerId ? decodeURIComponent(obj.workerId) : "",
+            "screenNo": screenNo,
+            "tutorialAction": tutorialAction,
+        },
+        success: function(returnData) {
+        }
+      });
+    };
+
+      this.leaveFeedback = function() {
         $("#collectorbox").hide() ;
         $("#survival_panel").hide() ;
 
@@ -1082,6 +1101,28 @@ function($){
           "<h3>Your Feedback</h3>" +
           "<div id='message'>" + 
           "  <p>Please let us know about your experiences during the game.</p>" +
+          "  <p>All properly completed forms will be rewarded by an additional bonus of <b>" + (obj.feedbackBonus * 100)+ "</b> cents.</p>" +
+          "  <div>" + 
+          "    <div class='fb_left'>What's your age? </div>" +
+          "    <div class='fb_right'><input id='yourAge' style='width: 50px'></div>" +
+          "  </div>" +
+
+          "  <div>" + 
+          "    <div class='fb_left'>What's your gender? </div>" +
+          "    <div class='fb_right'>" +  
+          "      <input type='radio' name='gender' value='1'> Male" + 
+          "      <input type='radio' name='gender' value='0'> Female" + 
+          "    </div>" +
+          "  </div>" +
+
+          "  <div>" + 
+          "    <div class='fb_left'>Is English your native language?</div>" +
+          "    <div class='fb_right'>" +  
+          "    <input type='radio' name='nativeLanguage' value='1'> Yes" + 
+          "    <input type='radio' name='nativeLanguage' value='0'> No" + 
+          "    </div>" +
+          "  </div>" +
+
           "  <div>" + 
           "    <div class='fb_left'>How clear were the instructions?</div>" + 
           "    <div class='fb_right'><div id='fb_instr'></div>" + 
@@ -1105,7 +1146,6 @@ function($){
           //"</div>" +
           "  <div>" + 
           "    <div class='fb_left'>What was your strategy during the game?</div>" +
-          //"    <div class='fb_right'><input type='text' id='fb_strat' style='width:400px;'/></div>" +
           "    <div class='fb_right'><textarea type='text' id='fb_strat' style='width:400px;font-family: Verdana,Sans-Serif; font-size: 12px;' rows='3'></textarea></div>" +
           "  </div>" +
           "  <div>" + 
@@ -1141,11 +1181,19 @@ function($){
           //updateClient();
           //track("Submit feedback", "", 5);
           $('#begin').attr("disabled", true);
+          var age   = encodeURIComponent($("#yourAge").val());
+          if(age == '') age = -1 ;
+          var gender = $('input[name=gender]:checked', '#message').val() ;
+          if(gender == undefined) gender = -1 ;
+          var nativeLanguage = $('input[name=nativeLanguage]:checked', '#message').val() ;
+          if(nativeLanguage == undefined) nativeLanguage = -1 ;
+
           var instr = encodeURIComponent($("#fb_instr").slider("option", "value"));
           var inter = encodeURIComponent($("#fb_inter").slider("option", "value"));
           var speed = encodeURIComponent($("#fb_speed").slider("option", "value"));
           var strat = encodeURIComponent($("#fb_strat").val());
           var think = encodeURIComponent($("#fb_think").val());
+
           $.ajax({
             type: "POST",
             url: "game",
@@ -1154,6 +1202,7 @@ function($){
 				      "gameId" : decodeURIComponent(obj.gameId), 
 				      "slotId" : decodeURIComponent(obj.slotId), 
 				      "workerId" : obj.workerId ? decodeURIComponent(obj.workerId) : "",
+              "age": age, "gender": gender, "nativeLanguage": nativeLanguage, 
               "instr": instr, "inter": inter, "speed": speed, "strat": strat, "think": think
             },
             success: function(returnData) {
@@ -1163,7 +1212,6 @@ function($){
             }
           });
         });
-
       }
 	 };
 

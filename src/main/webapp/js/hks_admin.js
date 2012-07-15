@@ -80,6 +80,7 @@ $(document).ready(function(){
       + "&initTempteeBonus=" + $('#initTempteeBonus').val()
       +"&initialTrusterBonus=" + $('#initialTrusterBonus').val()
       +"&exchangeRate=" + $('#exchangeRate').val()
+      +"&feedbackBonus=" + $('#feedbackBonus').val()
       +"&betrayalCost=" + $('#betrayalCost').val()
     +"&maxRoundsNum=" + $('#maxRoundsNum').val();
     $.ajax({
@@ -141,8 +142,9 @@ var intervalId = setInterval(function() {$.ajax({
           <td>" + returnData.hksGames[i].blackMarkUpperLimit + "</td>\
           <td>" + returnData.hksGames[i].initTempteeBonus + "</td>"+
           
-          "<td>" + returnData.hksGames[i].exchangeRate+"</td>"+ 
-          "<td>" + returnData.hksGames[i].maxRoundsNum+"</td>"+ 
+          "<td>" + returnData.hksGames[i].exchangeRate + "</td>"+ 
+          "<td>" + returnData.hksGames[i].feedbackBonus + "</td>"+ 
+          "<td>" + returnData.hksGames[i].maxRoundsNum + "</td>"+ 
           "<td style='width: 120px'>" + linkText + "</td></tr>";
       $('#gameTable tr:last').after(newRow);
       if (returnData.currentSlot) {

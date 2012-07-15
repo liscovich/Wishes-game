@@ -11,6 +11,7 @@ create table Game (
     betrayCaughtChance double precision not null,
 
     betrayalCost integer not null,
+    feedbackBonus float not null,
     exchangeRate float not null,
     initialTrusterBonus integer not null,
     maxRoundsNum integer not null,
@@ -69,6 +70,9 @@ create table Feedback (
     id integer not null auto_increment,
     created datetime not null,
     updated datetime not null,
+    age integer not null,
+    gender integer not null,
+    nativeLanguage integer not null,
     instruction integer not null,
     interesting integer not null,
     speed integer not null,

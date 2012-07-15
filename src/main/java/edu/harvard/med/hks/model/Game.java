@@ -52,6 +52,7 @@ public class Game extends AbstractTimestampEntity {
 	 */
 	private int initialTrusterBonus;
 	
+	private float feedbackBonus ;
 	/**
 	 * Exchange rate (points/USD).
 	 */
@@ -127,6 +128,9 @@ public class Game extends AbstractTimestampEntity {
 	public void setInitialTrusterBonus(int initialTrusterBonus) {
 		this.initialTrusterBonus = initialTrusterBonus;
 	}
+	
+	public float getFeedbackBonus() { return this.feedbackBonus ; }
+	public void  setFeedbackBonus(float fbBonus) { this.feedbackBonus = fbBonus ;}
 	
 	public float getExchangeRate() { return exchangeRate; }
 	public void setExchangeRate(float exchangeRate) {

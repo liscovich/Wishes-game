@@ -135,6 +135,10 @@ public class HksGameServiceImpl implements HksGameService {
 		}
 		slot.setStatus(Status.PLAY.toString());
 		slot.setPractice(true) ;
+		
+		Slot.PlayerReport pReport = slot.getPlayerReport() ;
+		pReport.finishTutorial() ;
+		slot.setPlayerReport(pReport) ;
 		slotDao.update(slot);
 	}
 	
@@ -236,6 +240,7 @@ public class HksGameServiceImpl implements HksGameService {
 		result.put("currentRound", slot.getCurrentRound());
 		result.put("maxBetrayPayoff", slot.getMaxBetrayPayoff());
 		result.put("mturkRate", slot.getGame().getExchangeRate());
+		result.put("feedbackBonus", slot.getGame().getFeedbackBonus());
 		result.put("practice", slot.getPractice());
 		result.put("gameCanPlay", (slot.getGame().getMaxRoundsNum() - slot.getWorkerPlayTracker()));
 		boolean lastGame = !"admin7".equals(slot.getWorkerId()) && slot.getWorkerPlayTracker() >= slot.getGame().getMaxRoundsNum();
@@ -380,7 +385,23 @@ public class HksGameServiceImpl implements HksGameService {
 		return result;
 	}
 
-	@Override
+	public Map<String, Object> trackTutorial(HttpServletRequest req) throws GeneralException {
+		String screenNo = req.getParameter("screenNo") ;
+		Map<String, Object> result = new HashMap<String, Object>();
+		List<Slot> byProperty = slotDao.getByProperty("slotId", req.getParameter("slotId"));
+		if (byProperty.isEmpty()) return result;
+		Slot slot = byProperty.get(0);
+		int step = Integer.parseInt(screenNo) ;
+		String action = req.getParameter("tutorialAction") ;
+		Slot.PlayerReport pReport = slot.getPlayerReport() ;
+		Slot.TutorialReport tutorialReport = pReport.addTutorialReport(step, action);
+		slot.setPlayerReport(pReport) ;
+		appendLog(slot, tutorialReport.toString());
+		slotDao.update(slot) ;
+		outputSlotData(slot);
+		return result;
+	}
+	
 	public Map<String, Object> sendFeedback(HttpServletRequest req) throws GeneralException {
 		Map<String, Object> result = new HashMap<String, Object>();
 		List<Slot> byProperty = slotDao.getByProperty("slotId", req.getParameter("slotId"));
@@ -406,6 +427,9 @@ public class HksGameServiceImpl implements HksGameService {
 		} else {
 			feedback = feedbacks.get(0); 
 		}
+		feedback.setAge(parseInt(req.getParameter("age"), -1)) ;
+		feedback.setGender(Integer.parseInt(req.getParameter("gender"))) ;
+		feedback.setNativeLanguage(Integer.parseInt(req.getParameter("nativeLanguage"))) ;
 		feedback.setInstruction(Integer.parseInt(req.getParameter("instr"))) ;
 		feedback.setInteresting(Integer.parseInt(req.getParameter("inter"))) ;
 		feedback.setSpeed(Integer.parseInt(req.getParameter("speed"))) ;
@@ -540,4 +564,12 @@ public class HksGameServiceImpl implements HksGameService {
 	public HksGameDao getGameDao() { return hksGameDao; }
 
 	public SlotDao getSlotDao() { return slotDao; }
+	
+	private int parseInt(String string, int defaultVal) {
+		try {
+			return Integer.parseInt(string) ;
+		} catch(Throwable t) {
+		}
+		return defaultVal; 
+	}
 }

@@ -35,23 +35,23 @@ public class GameServlet extends HttpServlet {
 			out.println("Unknown gameId");
 			return;
 		}
-		
-//		int points = (!StringUtils.isEmpty(req.getParameter("points")))?Integer.parseInt(req.getParameter("points")):0;
-//		boolean isNext = (!StringUtils.isEmpty(req.getParameter("next")))?Boolean.valueOf(req.getParameter("next")) : false;
-//		if (isNext && points > 0){
-//			String slotId = req.getParameter("slotId");
-//			Slot slot = hksGameService.getSlotDao().getByProperty("slotId",	slotId).get(0);
-//			slot.setStatus(Status.OCCUPIED.toString());
-//			slot.setSurvival(true);
-//			slot.setBlackMarkCount(0);
-//			 try {
-//				hksGameService.getSlotDao().update(slot);
-//			} catch (GeneralException e) {
-//				e.printStackTrace();
-//			}
-//			resp.sendRedirect(req.getRequestURL().toString());
-//		}
-		
+
+		//int points = (!StringUtils.isEmpty(req.getParameter("points")))?Integer.parseInt(req.getParameter("points")):0;
+		//boolean isNext = (!StringUtils.isEmpty(req.getParameter("next")))?Boolean.valueOf(req.getParameter("next")) : false;
+		//if (isNext && points > 0){
+		//	String slotId = req.getParameter("slotId");
+		//	Slot slot = hksGameService.getSlotDao().getByProperty("slotId",	slotId).get(0);
+		//	slot.setStatus(Status.OCCUPIED.toString());
+		//	slot.setSurvival(true);
+		//	slot.setBlackMarkCount(0);
+		//	try {
+		//		hksGameService.getSlotDao().update(slot);
+		//	} catch (GeneralException e) {
+		//		e.printStackTrace();
+		//	}
+		//	resp.sendRedirect(req.getRequestURL().toString());
+		//}
+
 		try {
 			Slot slot = hksGameService.findEmptySlotForWorker(gameId, req.getParameter("workerId"));
 			//String slotId = hksGameService.getEmptySlotId(gameId, req.getParameter("workerId"));
@@ -105,6 +105,8 @@ public class GameServlet extends HttpServlet {
 				result = hksGameService.payoffAck(req);
 			} else if (action.equals("endChanceAck")) {
 				result = hksGameService.endChanceAck(req);
+			} else if (action.equals("trackTutorial")) {
+				result = hksGameService.trackTutorial(req);
 			} else if (action.equals("sendFeedback")) {
 				result = hksGameService.sendFeedback(req);
 			}
@@ -124,7 +126,7 @@ public class GameServlet extends HttpServlet {
 	public void init() throws ServletException {
 		super.init();
 		ApplicationContext applicationContext = 
-			WebApplicationContextUtils.getWebApplicationContext(getServletContext());
+				WebApplicationContextUtils.getWebApplicationContext(getServletContext());
 		hksGameService = (HksGameService) applicationContext.getBean("hksGameService");
 	}
 }

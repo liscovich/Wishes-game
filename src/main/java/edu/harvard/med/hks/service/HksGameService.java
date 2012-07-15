@@ -23,6 +23,8 @@ public interface HksGameService {
 
 	Map<String, Object> reward(HttpServletRequest req) throws GeneralException;
 
+	Map<String, Object> trackTutorial(HttpServletRequest req) throws GeneralException;
+	
 	Map<String, Object> sendFeedback(HttpServletRequest req) throws GeneralException;
 
 	Map<String, Object> update(HttpServletRequest req) throws GeneralException;

@@ -20,6 +20,8 @@ import com.google.gson.GsonBuilder;
 
 @Entity
 public class Slot extends AbstractTimestampEntity {
+	final static SimpleDateFormat TIME_FT = new SimpleDateFormat("dd/MM/yyyy@HH:mm:ss")  ;
+	
 	public static enum Status {
 		INIT, OCCUPIED, TUTORIAL, PLAY, PAYOFF, FINISHED, DROPPED, THANKS
 	}
@@ -162,7 +164,6 @@ public class Slot extends AbstractTimestampEntity {
 
 	public String getPlayerReportFormatted() {
 		DecimalFormat CURR_FT = new DecimalFormat("#.00") ;
-		final SimpleDateFormat TIME_FT = new SimpleDateFormat("dd/MM/yyyy@HH:mm:ss")  ;
 		PlayerReport pReport = getPlayerReport() ;
 		if(pReport == null) return "" ;
 		StringBuilder b = new StringBuilder() ;
@@ -184,10 +185,36 @@ public class Slot extends AbstractTimestampEntity {
 		b.append("Black Mark Threshold: ").append(game.getBlackMarkUpperLimit()).append("\n") ;
 		b.append("Init Temptee Bonus: ").append(game.getInitTempteeBonus()).append("\n") ;
 		b.append("Exchange rate: ").append(game.getExchangeRate()).append("\n") ;
+		b.append("Feedback Bonus: ").append(game.getFeedbackBonus()).append("\n") ;
 		b.append("Max Rounds Number: ").append(game.getMaxRoundsNum()).append("\n\n") ;
 		
 		
-		printColumn(b, "Time", 25) ;
+		printColumn(b, "Start Time", 25) ;
+		printColumn(b, "End Time", 25) ;
+		printColumn(b, "Duration (sec)", 15) ;
+		printColumn(b, "Screen No", 20) ;
+		printColumn(b, "Action", 20) ;
+		b.append("\n");
+		Iterator<TutorialReport> tutReItr = pReport.getTutorialReports().values().iterator() ;
+		double timeToComplete = 0 ;
+		while(tutReItr.hasNext()) {
+			TutorialReport entry = tutReItr.next() ;
+			double time = (entry.getEndTime() - entry.getStartTime())/(double)1000;
+			if(time < 0) time = 0 ;
+			timeToComplete += time ;
+			printColumn(b, TIME_FT.format(new Date(entry.getStartTime())), 25) ;
+			printColumn(b, TIME_FT.format(new Date(entry.getEndTime())), 25) ;
+			printColumn(b, "" + time, 15) ;
+			printColumn(b, Integer.toString(entry.getScreenNo()), 20) ;
+			printColumn(b, entry.getAction(), 20) ;
+			b.append("\n");
+		}
+		b.append("\n"); 
+		b.append("Tutorial Duration: " + timeToComplete).append(" sec. \n\n");
+		
+		printColumn(b, "Start Time", 25) ;
+		printColumn(b, "End Time", 25) ;
+		printColumn(b, "Duration (sec)", 15) ;
 		printColumn(b, "Round", 16) ;
 		printColumn(b, "Status", 10) ;
 		printColumn(b, "Low Payoff", 12) ;
@@ -198,6 +225,7 @@ public class Slot extends AbstractTimestampEntity {
 		printColumn(b, "Remaining Wishes", 20) ;
 		printColumn(b, "Balance", 10) ;
 		Iterator<Map.Entry<String, PlayerRoundReport>> i = pReport.getRoundReports().entrySet().iterator() ;
+		double totalDuration = 0; 
 		while(i.hasNext()) {
 			Map.Entry<String, PlayerRoundReport> entry = i.next() ;
 			PlayerRoundReport rReport = entry.getValue() ;
@@ -207,7 +235,11 @@ public class Slot extends AbstractTimestampEntity {
 				continue ; 
 			}
 			b.append("\n") ;
-			printColumn(b, TIME_FT.format(new Date(rReport.getTime())), 25) ;
+			double duration = (rReport.getEndTime() - rReport.getStartTime())/(double)1000 ;
+			totalDuration += duration ;
+			printColumn(b, TIME_FT.format(new Date(rReport.getStartTime())), 25) ;
+			printColumn(b, TIME_FT.format(new Date(rReport.getEndTime())), 25) ;
+			printColumn(b, "" + duration, 15) ;
 			printColumn(b, rReport.getId(), 16) ;
 			printColumn(b, rReport.getStatus(), 10) ;
 			printColumn(b, Integer.toString(rReport.getLowPayoff()), 12) ;
@@ -234,6 +266,8 @@ public class Slot extends AbstractTimestampEntity {
 			balance = getTempteeBonus() * game.getExchangeRate() ;
 		}
 		printColumn(b, "$" + CURR_FT.format(balance), 25) ;
+		b.append("\n\n") ;
+		b.append("Total Duration: " + totalDuration).append(" sec.\n") ;
 		return b.toString() ;
 	}
 	
@@ -362,20 +396,53 @@ public class Slot extends AbstractTimestampEntity {
 	public void setSlotNumber(int slotNumber) { this.slotNumber = slotNumber; }
 	
 	static public class PlayerReport {
+		private Map<Integer, TutorialReport> tutorialReports = new LinkedHashMap<Integer, TutorialReport>() ;
 		private Map<String, PlayerRoundReport> roundReports = new LinkedHashMap<String, PlayerRoundReport>() ;
-
+		
+		public TutorialReport addTutorialReport(int screenNo, String action) {
+			TutorialReport tutorialReport = new TutorialReport() ;
+			int id = tutorialReports.size() ;
+			long ctime = System.currentTimeMillis() ;
+			if(id > 0) {
+				TutorialReport pScreen = this.tutorialReports.get(id - 1) ;
+				pScreen.setEndTime(ctime) ;
+			}
+			tutorialReport.setStartTime(ctime) ;
+			tutorialReport.setScreenNo(screenNo) ;
+			tutorialReport.setAction(action) ;
+			tutorialReports.put(id, tutorialReport) ;
+			return tutorialReport ;
+		}
+		
+		public void finishTutorial() {
+			int id = tutorialReports.size() ;
+			long ctime = System.currentTimeMillis() ;
+			if(id > 0) {
+				TutorialReport pScreen = this.tutorialReports.get(id - 1) ;
+				pScreen.setEndTime(ctime) ;
+			}
+		}
+		
+		public Map<Integer, TutorialReport> getTutorialReports() { return this.tutorialReports ; }
+		public void setTutorialReports(Map<Integer, TutorialReport> aReport) {
+			this.tutorialReports = aReport;
+    }
+		
 		public PlayerRoundReport getPlayerRoundReport(Slot slot, int round, boolean create) {
 			String key = "PLAY ROUND ";
 			if(slot.getPractice()) key = "PRACTICE ROUND " ;
 			key += round ;
 			PlayerRoundReport rReport = roundReports.get(key) ;
+			long ctime = System.currentTimeMillis() ;
 			if(create && rReport == null) {
 				rReport = new PlayerRoundReport() ;
 				rReport.setId(key) ;
 				rReport.setRound(round) ;
-				rReport.setTime(System.currentTimeMillis()) ;
+				rReport.setStartTime(ctime) ;
 				roundReports.put(key, rReport) ;
 			}
+			if(rReport.getEndTime() == 0) rReport.setEndTime(ctime + 3000) ; 
+			else rReport.setEndTime(ctime) ;
 			return rReport ;
 		}
 		
@@ -387,7 +454,8 @@ public class Slot extends AbstractTimestampEntity {
 	
 	static public class PlayerRoundReport {
 		private String id ;
-		private long time ;
+		private long startTime ;
+		private long endTime ;
 		private int  round ;
 		private String status ;
 		private int  lowPayoff ;
@@ -401,15 +469,17 @@ public class Slot extends AbstractTimestampEntity {
 		public String getId() { return id ; }
 		public void   setId(String id) { this.id = id ; }
 		
-		public long getTime() { return this.time ; }
-		public void setTime(long time) { this.time = time ;}
+		public long getStartTime() { return this.startTime ; }
+		public void setStartTime(long time) { this.startTime = time ;}
 		
+		public long getEndTime() { return this.endTime ; }
+		public void setEndTime(long time) { this.endTime = time ;}
 		
 		public int getRound() { return round; }
 		public void setRound(int round) { this.round = round; }
 		
 		public String getStatus() { return this.status ; }
-		public void setStatus(String status) { this.status = status ; }
+		public void   setStatus(String status) { this.status = status ; }
 		
 		public int getLowPayoff() { return lowPayoff; }
 		public void setLowPayoff(int lowPayoff) { this.lowPayoff = lowPayoff; }
@@ -431,5 +501,35 @@ public class Slot extends AbstractTimestampEntity {
 		
 		public int getBalance() { return balance; }
 		public void setBalance(int balance) { this.balance = balance; }
+	}
+	
+	static public class TutorialReport {
+		private int     id ;
+		private long    startTime ;
+		private long    endTime ;
+		private int     screenNo ;
+		private String  action ;
+
+		public int getId() { return id ; }
+		public void setId(int id) { this.id = id ; }
+		
+		public long getStartTime() { return startTime; }
+		public void setStartTime(long time) { this.startTime = time; }
+
+		public long getEndTime() { return this.endTime ; }
+		public void setEndTime(long time) { this.endTime = time ;}
+		
+		public int getScreenNo() { return screenNo; }
+		public void   setScreenNo(int step) { this.screenNo = step; }
+
+		public String getAction() { return action; }
+		public void setAction(String action) { this.action = action; }
+
+		public String toString() {
+			StringBuilder b = new StringBuilder() ;
+			Date date = new Date(startTime) ;
+			b.append(date).append(" Tutorial ").append(screenNo).append(" ").append(action) ;
+			return b.toString() ;
+		}
 	}
 }

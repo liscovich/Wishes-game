@@ -256,14 +256,16 @@ a#tutorial_prev{
 	width: 260px;
 	display: table-cell;
 	vertical-align: middle;
+  text-align: left ;
 }
 
 .fb_right {
 	display: table-cell;
 	vertical-align: middle;
+	height: 50px;
 	width: 400px;
-	height: 45px;
 	padding: 5px 0 0 0;
+  text-align: left ;
 }
 
 .ui-slider {

@@ -13,6 +13,11 @@ public class Feedback extends AbstractTimestampEntity {
 	@NotNull
 	@ManyToOne
 	private Slot slot;
+	
+	private int age ;
+	private int gender ;
+	private int nativeLanguage ;
+	
 	private int speed;
 	private int instruction;
 	private int interesting;
@@ -25,6 +30,15 @@ public class Feedback extends AbstractTimestampEntity {
 	public int getInteresting() { return interesting; }
 	
 	public Slot getSlot() { return slot; }
+	
+	public int getAge() { return this.age ; }
+	public void setAge(int age) { this.age = age ; }
+	
+	public int getGender() { return this.gender ; }
+	public void setGender(int gender) { this.gender = gender ;}
+	
+	public int getNativeLanguage() { return this.nativeLanguage ; }
+	public void setNativeLanguage(int nativeLanguage) { this.nativeLanguage = nativeLanguage ; }
 	
 	public int getSpeed() { return speed; }
 	

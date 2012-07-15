@@ -43,6 +43,8 @@ public class AdminServiceImpl implements AdminService {
 		
 		game.setInitialTrusterBonus(Integer.parseInt(req.getParameter("initialTrusterBonus")));
 		game.setExchangeRate(Float.parseFloat(req.getParameter("exchangeRate")));
+		game.setFeedbackBonus(Float.parseFloat(req.getParameter("feedbackBonus")));
+		
 		game.setBetrayalCost(Integer.parseInt(req.getParameter("betrayalCost")));
 		game.setMaxRoundsNum(Integer.parseInt(req.getParameter("maxRoundsNum")));
 		
@@ -106,6 +108,7 @@ public class AdminServiceImpl implements AdminService {
 			map.put("initialTrusterBonus", hksGame.getInitialTrusterBonus());
 			map.put("betrayalCost", hksGame.getBetrayalCost());
 			map.put("exchangeRate", hksGame.getExchangeRate());
+			map.put("feedbackBonus", hksGame.getFeedbackBonus());
 			map.put("maxRoundsNum", hksGame.getMaxRoundsNum());
 			
 			list.add(map);
@@ -136,6 +139,8 @@ public class AdminServiceImpl implements AdminService {
 						if(fb != null) {
 							StringBuilder b = new StringBuilder() ;
 							b.append("Feedback: ") ;
+							b.append("Age = ").append(fb.getAge()).append(", Gender = ").append(fb.getGender()).
+							  append(", Native Language = ").append(fb.getNativeLanguage()).append(", ");
 							b.append("Clarity of instructions(0 = not clear, 5 = clear) = ").append(fb.getInstruction()).append("; ").
 	               append("Interesting( 0 = not interesting, 5 = very interesting) = ").append(fb.getInteresting()).append("; ").
 	               append("Speed (0 = too slow, 5 = too fast) = ").append(fb.getSpeed()).append("; ").
