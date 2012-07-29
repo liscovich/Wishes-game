@@ -160,7 +160,7 @@ function($){
 		},
 		{
 		'step' : 4,
-		'content': ['<div class="label">The second card gives you a High Payoff that changes randomly from round to round between ' + ( obj.lowPayoffPoint || "Low Payoff" ) + ' and ' + ( ((obj.lowPayoffPoint + obj.maxBetrayPayoff)*1) || "High Payoff" ) + ' points. Every number in this range is equally likely. </div>'],
+		'content': ['<div class="label">The second card gives you a High Payoff that changes randomly from round to round between ' + ( obj.lowPayoffPoint + 1) + ' and ' + ( ((obj.lowPayoffPoint + obj.maxBetrayPayoff)*1) || "High Payoff" ) + ' points. Every number in this range is equally likely. </div>'],
 		'figure' : { 
 				card1 : {
 					visible : true,
@@ -274,7 +274,7 @@ function($){
 		'step' : 8,
 		'content': ['<div class="label">To recap:<ol>'+
 					'<li>You play multiple rounds.</li>' +
-					'<li>In each round, you choose either the Low Payoff  card that gives you <b>' + ( obj.lowPayoffPoint || "Low Payoff" ) + '</b> points, or the High Payoff card that gives you between <b>' + ( obj.lowPayoffPoint || "Low Payoff" ) + '</b> and <b>' + (( obj.maxBetrayPayoff + obj.lowPayoffPoint )*1) + '</b> points but uses up one wish.</li>' +
+					'<li>In each round, you choose either the Low Payoff  card that gives you <b>' + ( obj.lowPayoffPoint || "Low Payoff" ) + '</b> points, or the High Payoff card that gives you between <b>' + ( obj.lowPayoffPoint + 1) + '</b> and <b>' + (( obj.maxBetrayPayoff + obj.lowPayoffPoint )*1) + '</b> points but uses up one wish.</li>' +
 					'<li>If you use up all of your wishes, the game ends.</li>' +
 					'<li>After every round, you spin the wheel of fortune, which can also end the game. There is a <b>' + Math.round(100 - obj.endChance * 100) + '%</b> chance that the game continues and a <b>' + Math.round(obj.endChance * 100) + '%</b> chance it ends.</li>' +
 					'<li>Your goal is to earn as many points as you can before the game ends. You do not get any points for left-over wishes.</li>' +
@@ -527,9 +527,9 @@ function($){
 			  }
 
 			  var noArc = obj.paper.path(arc([width/2, height/2], rad, startAngleNo, endAngleNo)).attr({"stroke": "#ddd", "stroke-width": 8}); 
-			  var t = obj.paper.text(width/2, height/4, "Yes").attr({ "fill": "#999", "font-size": 12, "font-family": "Arial, Helvetica, sans-serif" });
+			  var yesText = obj.paper.text(width/2, height/4, "Yes").attr({ "fill": "#999", "font-size": 12, "font-family": "Arial, Helvetica, sans-serif" });
 			  var yesArc = obj.paper.path(arc([width/2, height/2], rad, startAngleYes, endAngleYes)).attr({"stroke": "#ddd", "stroke-width": 8}); 
-			  var t = obj.paper.text(width/2, height*3/4, "No").attr({ "fill": "#999", "font-size": 12, "font-family": "Arial, Helvetica, sans-serif" });
+			  var noText = obj.paper.text(width/2, height*3/4, "No").attr({ "fill": "#999", "font-size": 12, "font-family": "Arial, Helvetica, sans-serif" });
 			  var dialPath = "M"
 							+ (cx - 5)
 							+ " "
@@ -551,26 +551,28 @@ function($){
 			  rotAngle = (360 * (rotTimes - 1)) + rotAngle
 			  var rotString = rotAngle +" "+ cx+" "+cy;
 			  /* console.log(rotString); */
-			  if(typeof buttonSelector != 'undefined' && buttonSelector != ''){
-			  $('#'+buttonSelector).unbind('click').click(function(){
+			  if(typeof buttonSelector != 'undefined' && buttonSelector != '') {
+			  $('#'+ buttonSelector).unbind('click').click(function() {
 				  $(this).attr('disabled','disabled');
-				  obj.survival?activeArc=yesArc:activeArc = noArc;
+				  obj.survival ? activeArc = yesArc : activeArc = noArc;
 				  dial.animate({rotation:rotString},1000,'<',function(){
-					  activeArc.animate({scale:"1.05 1.05", stroke: "#666"},200,'bounce',function(){
-						activeArc.animate({scale:"1 1"},200,'bounce',function(){
-							if(obj.returnData.status == 'TUTORIAL'){
-								setTimeout(function(){
+					  activeArc.animate({scale:"1.05 1.05", stroke: "#666"},200,'bounce',function() {
+						  activeArc.animate({scale:"1 1"},200,'bounce',function(){
+							  if(obj.returnData.status == 'TUTORIAL'){
+								  setTimeout(function() {
 										$('#tutorial_next').css({'visibility' : 'visible'});
 										$('.hide-on-click').css({'visibility' : 'hidden'});
 									},2000); 
-								}
-							else{
-								setTimeout(function(){
-									obj.hideSurvivalPanel();
-									obj.nextRound();
+						    } else {
+								  setTimeout(function(){
+									  obj.hideSurvivalPanel();
+									  obj.nextRound();
 									},2000);
 								}
 							});
+              var activeText = yesText ;
+              if(activeArc == noArc) activeText = noText ;
+			        activeText.attr({ "fill": "#666", "font-weight" : "bold" });
 						});
 					  });
 				});
@@ -578,12 +580,15 @@ function($){
 			  
 			  if(autoRender == true){
 				//console.log(obj.survival);
-				  obj.survival?activeArc=yesArc:activeArc = noArc;
+				  obj.survival ? activeArc = yesArc: activeArc = noArc;
 				  dial.animate({rotation:rotString},0,'<',function(){
 					  activeArc.animate({scale:"1.05 1.05", stroke: "#666"},0,'bounce',function(){
 						activeArc.animate({scale:"1 1"},0,'bounce');
 						});
 					  });
+            var activeText = yesText ;
+            if(activeArc == noArc) activeText = noText ;
+            activeText.attr({ "fill": "#666", "font-weight" : "bold" });
 				}
 			};
 			
@@ -1101,7 +1106,7 @@ function($){
           "<h3>Your Feedback</h3>" +
           "<div id='message'>" + 
           "  <p>Please let us know about your experiences during the game.</p>" +
-          "  <p>All properly completed forms will be rewarded by an additional bonus of <b>" + (obj.feedbackBonus * 100)+ "</b> cents.</p>" +
+          "  <p>All properly completed forms will be rewarded by an additional bonus of <b>$" + obj.feedbackBonus + "</b>.</p>" +
           "  <div>" + 
           "    <div class='fb_left'>What's your age? </div>" +
           "    <div class='fb_right'><input id='yourAge' style='width: 50px'></div>" +
@@ -1145,7 +1150,7 @@ function($){
           "  </div>" +
           //"</div>" +
           "  <div>" + 
-          "    <div class='fb_left'>What was your strategy during the game?</div>" +
+          "    <div class='fb_left'>Did you use a different strategy depending on how many wishes you had left?  If so, explain how it was different.</div>" +
           "    <div class='fb_right'><textarea type='text' id='fb_strat' style='width:400px;font-family: Verdana,Sans-Serif; font-size: 12px;' rows='3'></textarea></div>" +
           "  </div>" +
           "  <div>" + 

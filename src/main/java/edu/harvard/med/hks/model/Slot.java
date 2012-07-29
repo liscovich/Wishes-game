@@ -164,7 +164,7 @@ public class Slot extends AbstractTimestampEntity {
 
 	public String getPlayerReportFormatted() {
 		DecimalFormat CURR_FT = new DecimalFormat("#.00") ;
-		PlayerReport pReport = getPlayerReport() ;
+		PlayerReport  pReport = getPlayerReport() ;
 		if(pReport == null) return "" ;
 		StringBuilder b = new StringBuilder() ;
 		

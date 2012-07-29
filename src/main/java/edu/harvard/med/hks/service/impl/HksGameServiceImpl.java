@@ -28,6 +28,7 @@ import edu.harvard.med.hks.service.HksGameService;
 
 @Service
 public class HksGameServiceImpl implements HksGameService {
+	
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(HksGameServiceImpl.class);
 
@@ -319,11 +320,13 @@ public class HksGameServiceImpl implements HksGameService {
 	}
 
 	private void samplingNewRound(Slot slot) {
-		Random random = new Random();
-		slot.setCurrentBetrayPayoff(slot.getRewardPayoff() + random.nextInt(slot.getMaxBetrayPayoff()));
-		slot.setSurvivalSampling(random.nextDouble());
-		slot.setBetrayCaughtSampling(random.nextDouble());
-		slot.setRewardCaughtAsBetrayalSampling(random.nextDouble());
+		Random RANDOM = new Random() ;
+		int radomBetrayPayoff = slot.getRewardPayoff() + (RANDOM.nextInt(slot.getMaxBetrayPayoff()) + 1);
+		//System.out.println("currentBetrayPayoff  = " + radomBetrayPayoff);
+		slot.setCurrentBetrayPayoff(radomBetrayPayoff);
+		slot.setSurvivalSampling(RANDOM.nextDouble());
+		slot.setBetrayCaughtSampling(RANDOM.nextDouble());
+		slot.setRewardCaughtAsBetrayalSampling(RANDOM.nextDouble());
 	}
 	
 	private void initPlay(Slot slot) {

@@ -113,7 +113,7 @@ public class GameServlet extends HttpServlet {
 		} catch (GeneralException e) {
 			result.put("error", e.getMessage());
 		} catch (Exception e) {
-			result.put("error", "Error happen! Please contact us liscovich@gmail.com!");
+			result.put("error", "Server Error");
 			logger.error(e.getMessage(), e);
 		}
 		String responseString = new Gson().toJson(result);

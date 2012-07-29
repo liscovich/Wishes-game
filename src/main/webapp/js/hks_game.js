@@ -324,13 +324,15 @@ function updateClient() {
     success: function(returnData){
       processReturnedData(returnData);
     },
+
     error: function(returnData, textStatus, errorThrown){
+      alert('call me') ;
       $('#tutorial').show();
       $('#play').hide();
       Game.message = $("#tutorial #message");
       Game.title = $("#tutorial #title");
       Game.navi = $("#tutorial #navi");
-      Game.title.html("Error happen!");
+      Game.title.html("Server Error");
       Game.message.html("<p>Please contact <a href='mailto:liscovich@gmail.com'>liscovich@gmail.com</a> " +
         "and provide the following error message:</p>" +
         "<textarea cols='30' rows = '5' style='border: 1px solid gray;'>" + errorThrown + "</textarea>");
