@@ -1,5 +1,6 @@
 package edu.harvard.med.hks.service.impl;
 
+import java.net.URLDecoder;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -7,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.net.URLDecoder ;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -36,7 +36,6 @@ public class HksGameServiceImpl implements HksGameService {
 	@Autowired private SlotDao slotDao;
 	@Autowired private FeedbackDao feedbackDao;
 
-	private boolean isClientInfoOutput = false;
 	private int roundsPlayed = 0;
 
 	private void appendLog(Slot slot, String log) {
@@ -46,23 +45,19 @@ public class HksGameServiceImpl implements HksGameService {
 		slot.setLog(gameLog.getBytes());
 	}
 
-	private void appendClientInfo(Slot slot, HttpServletRequest req){
-		if (!isClientInfoOutput) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("Remote addr. | Remote port | Remote Host | Remote user | Cookies | User Agent | OS    | Pixels \n");
+	private String getClientInfo(HttpServletRequest req) {
+		StringBuilder sb = new StringBuilder();
+		//sb.append("Remote addr. | Remote port | Remote Host | Remote user | Cookies | User Agent | OS    | Pixels \n");
 
-			sb.append(req.getRemoteAddr()).append("|");
-			sb.append(req.getRemotePort()).append("|");
-			sb.append(req.getRemoteHost()).append("|");
-			sb.append(req.getRemoteUser()).append("|");
-			sb.append(req.getHeader("Cookie")).append("|");
-			sb.append(req.getHeader("User-Agent")).append("|");
-			sb.append(req.getHeader("UA-OS")).append("|");
-			sb.append(req.getHeader("UA-Pixels")).append("|\n");
-
-			appendLog(slot, sb.toString());
-			isClientInfoOutput = true;
-		}
+		sb.append("  Remote addr = ").append(req.getRemoteAddr()).append("\n");
+		sb.append("  Remote port = ").append(req.getRemotePort()).append("\n");
+		sb.append("  Remote Host = ").append(req.getRemoteHost()).append("\n");
+		sb.append("  Remote user = ").append(req.getRemoteUser()).append("\n");
+		sb.append("  Cookies = ").append(req.getHeader("Cookie")).append("\n");
+		sb.append("  User Agent = ").append(req.getHeader("User-Agent")).append("\n");
+		sb.append("  OS = ").append(req.getHeader("UA-OS")).append("\n");
+		sb.append("  Pixels = ").append(req.getHeader("UA-Pixels")).append("\n");
+		return sb.toString() ;
 	}
 
 	private void outputSlotData(Slot slot){
@@ -84,7 +79,6 @@ public class HksGameServiceImpl implements HksGameService {
 		List<Slot> byProperty = slotDao.getByProperty("slotId", req.getParameter("slotId"));
 		if(byProperty.isEmpty()) return result;
 		Slot slot = byProperty.get(0);
-		appendClientInfo(slot, req);
 		if(!slot.getGame().getGameId().equals(req.getParameter("gameId"))) {
 			result.put("status", Status.DROPPED);
 			return result;
@@ -464,49 +458,23 @@ public class HksGameServiceImpl implements HksGameService {
 		}
 		
 		Slot slot = byProperty.get(0);
-//		//next == play again
-//		if(!StringUtils.isEmpty(req.getParameter("next"))) {
-//			roundsPlayed++;
-//			if(roundsPlayed < slot.getGame().getMaxRoundsNum()){
-//				slot.setStatus(Status.PLAY.toString());
-//				slot.setSurvival(true);
-//				slot.setLastAction("");
-//				slot.setBetrayCaught(false);
-//				slot.setCurrentRound(1) ;
-//				slot.setRewardCaughtAsBetrayalSampling(466);
-//				slot.setBetrayCaughtSampling(713);
-//				slot.setBlackMarkCount(0) ;
-//				//slot.setCurrentBetrayPayoff(11);
-//				samplingNewRound(slot);
-//				
-//				//Log player, init a new round
-//				slot.setPlayerReportJson(null) ;
-//				Slot.PlayerReport pReport = slot.getPlayerReport() ;
-//				Slot.PlayerRoundReport roundReport = pReport.getPlayerRoundReport(slot.getCurrentRound(), true) ;
-//				roundReport.setLowPayoff(slot.getGame().getRewardPayoff());
-//				roundReport.setBetrayPayoff(slot.getCurrentBetrayPayoff() - roundReport.getLowPayoff()) ;
-//				roundReport.setHighPayoff(slot.getCurrentBetrayPayoff());
-//				slot.setPlayerReport(pReport) ;
-//				
-//				slotDao.update(slot);
-//				output(result, slot);
-//				return result;
-//			} else {
-//				reward(req);
-//			}
-//		}
-		
 		
 		if (!slot.getGame().getGameId().equals(req.getParameter("gameId"))) {
 			result.put("status", Status.DROPPED);
 			return result;
 		}
 		
-		boolean init = slot.getStatus().equals(Status.INIT.toString()) ; 
-		if (init) {
+		boolean init = slot.getStatus().equals(Status.INIT.toString()) ;
+		boolean tutorial = slot.getStatus().equals(Status.TUTORIAL.toString()) ;
+		if(init) {
 			slot.setStatus(Status.TUTORIAL.toString());
 			slot.setTempteeBonus(slot.getInitTempteeBonus());
 			samplingNewRound(slot);
+			
+			appendLog(slot, getClientInfo(req));
+			Slot.PlayerReport pReport = slot.getPlayerReport() ;
+			pReport.setClientInfo(getClientInfo(req)) ;
+			slot.setPlayerReport(pReport) ;
 		}
 		
 		if(slot.getStatus().equals(Status.PLAY.toString())) {
@@ -546,7 +514,7 @@ public class HksGameServiceImpl implements HksGameService {
 	  //Log init a new round
 		//slot.setPlayerReportJson(null) ;
 		
-		if(!init) {
+		if(!init && !tutorial) {
 			Slot.PlayerReport pReport = slot.getPlayerReport() ;
 			Slot.PlayerRoundReport roundReport = pReport.getPlayerRoundReport(slot, slot.getCurrentRound(), true) ;
 			roundReport.setLowPayoff(slot.getGame().getRewardPayoff());

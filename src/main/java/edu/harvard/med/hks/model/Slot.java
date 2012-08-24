@@ -167,7 +167,7 @@ public class Slot extends AbstractTimestampEntity {
 		PlayerReport  pReport = getPlayerReport() ;
 		if(pReport == null) return "" ;
 		StringBuilder b = new StringBuilder() ;
-		
+		b.append(pReport.getClientInfo()).append("\n") ;
 		b.append("Inital game parameters").append("\n");
 		b.append("Game Id: ").append(game.getId()).append("\n") ;
 		b.append("Slot Id: ").append(slotId).append("\n") ;
@@ -397,7 +397,8 @@ public class Slot extends AbstractTimestampEntity {
 	
 	static public class PlayerReport {
 		private Map<Integer, TutorialReport> tutorialReports = new LinkedHashMap<Integer, TutorialReport>() ;
-		private Map<String, PlayerRoundReport> roundReports = new LinkedHashMap<String, PlayerRoundReport>() ;
+		private Map<String, PlayerRoundReport> roundReports  = new LinkedHashMap<String, PlayerRoundReport>() ;
+		private String clientInfo ;
 		
 		public TutorialReport addTutorialReport(int screenNo, String action) {
 			TutorialReport tutorialReport = new TutorialReport() ;
@@ -428,6 +429,22 @@ public class Slot extends AbstractTimestampEntity {
 			this.tutorialReports = aReport;
     }
 		
+		public Map<Integer, TutorialReport> getMergeTutorialReports() { 
+			Map<Integer, TutorialReport> holder = new LinkedHashMap<Integer, TutorialReport>() ;
+			Iterator<TutorialReport> i = tutorialReports.values().iterator() ;
+			while(i.hasNext()) {
+				TutorialReport report = i.next() ;
+				TutorialReport exist = holder.get(report.getScreenNo()) ;
+				if(exist == null) {
+					exist = report;
+					holder.put(exist.getScreenNo(), exist) ;
+				} 
+				exist.addMergeDuration(report.getDuration()) ;
+			}
+			return holder ; 
+		}
+		
+		
 		public PlayerRoundReport getPlayerRoundReport(Slot slot, int round, boolean create) {
 			String key = "PLAY ROUND ";
 			if(slot.getPractice()) key = "PRACTICE ROUND " ;
@@ -450,6 +467,9 @@ public class Slot extends AbstractTimestampEntity {
 		public void setRoundReports(Map<String, PlayerRoundReport> roundReports) {
 			this.roundReports = roundReports;
     }
+		
+		public String getClientInfo() { return this.clientInfo ; }
+		public void   setClientInfo(String info) { this.clientInfo = info ; }
 	}
 	
 	static public class PlayerRoundReport {
@@ -509,6 +529,8 @@ public class Slot extends AbstractTimestampEntity {
 		private long    endTime ;
 		private int     screenNo ;
 		private String  action ;
+		
+		private transient long mergeDuration ;
 
 		public int getId() { return id ; }
 		public void setId(int id) { this.id = id ; }
@@ -525,6 +547,18 @@ public class Slot extends AbstractTimestampEntity {
 		public String getAction() { return action; }
 		public void setAction(String action) { this.action = action; }
 
+		public long mergeDuration() { return this.mergeDuration ; }
+		public void addMergeDuration(long time) {
+			if(time < 0) return ;
+			this.mergeDuration += time ;
+		}
+		
+		public long getDuration() {
+			long time = this.endTime - this.startTime ;
+			if(time < 0) return 0 ;
+			return time ;
+		}
+		
 		public String toString() {
 			StringBuilder b = new StringBuilder() ;
 			Date date = new Date(startTime) ;

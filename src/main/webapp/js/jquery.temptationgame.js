@@ -556,6 +556,9 @@ function($){
 				  $(this).attr('disabled','disabled');
 				  obj.survival ? activeArc = yesArc : activeArc = noArc;
 				  dial.animate({rotation:rotString},1000,'<',function(){
+            var activeText = yesText ;
+            if(activeArc == noArc) activeText = noText ;
+            activeText.attr({ "fill": "#666", "font-weight" : "bold" });
 					  activeArc.animate({scale:"1.05 1.05", stroke: "#666"},200,'bounce',function() {
 						  activeArc.animate({scale:"1 1"},200,'bounce',function(){
 							  if(obj.returnData.status == 'TUTORIAL'){
@@ -570,9 +573,6 @@ function($){
 									},2000);
 								}
 							});
-              var activeText = yesText ;
-              if(activeArc == noArc) activeText = noText ;
-			        activeText.attr({ "fill": "#666", "font-weight" : "bold" });
 						});
 					  });
 				});

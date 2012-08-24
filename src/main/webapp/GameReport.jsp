@@ -18,6 +18,12 @@
 <%@ page import="edu.harvard.med.hks.model.Feedback" %>
 <%@ page import="edu.harvard.med.hks.service.AdminService" %>
 
+<%!
+  public String formatNull(String string) {
+    if(string == null) return "" ;
+    return string ;
+  }
+%>
 <%
   DecimalFormat DEC_FT = new DecimalFormat("#.00") ;
   List<Slot> slots = (List<Slot>)request.getAttribute("gameSlots") ;
@@ -51,7 +57,7 @@
         <td>Game ID</td><td><%=game.getGameId()%></td>
       </tr>
       <tr>
-        <td>Number of game slot</td><td><%=game.getNumberOfGameSlot()%></td>
+        <td>Number of game slots</td><td><%=game.getNumberOfGameSlot()%></td>
       </tr>
       <tr>
         <td>Max Betray Payoff</td><td><%=game.getMaxBetrayPayoff()%></td>
@@ -103,6 +109,7 @@
           <th rowspan="2">Earnings</th>
           <th colspan="11">Tutorial Screen (sec)</th>
           <th colspan="8">Feedback</th>
+          <th colspan="2">Client Info</th>
         </tr>
         <tr>
           <th>0</th>
@@ -124,7 +131,7 @@
           <th>Thoughts</th>
           <th>Age</th>
           <th>Gender<br/>(1=male)</th>
-          <th>Egnlish<br/>(1=yes)</th>
+          <th>English<br/>(1=yes)</th>
         </tr>
       <%for(int i = 0; i < slots.size(); i++) { %>
       <%  Slot slot = slots.get(i) ; %>
@@ -143,12 +150,12 @@
             %>
             <td>$<%=DEC_FT.format(balance)%></td>
             <%// Tutorial columns %>
-            <%Iterator<TutorialReport> tutReItr = slot.getPlayerReport().getTutorialReports().values().iterator() ; %>
+            <%Iterator<TutorialReport> tutReItr = slot.getPlayerReport().getMergeTutorialReports().values().iterator() ; %>
             <%double timeToGoThroughTutorial = 0 ; %>
             <%int counter = 0 ; %>
             <%while(tutReItr.hasNext()) { %>
             <%  TutorialReport cEntry = tutReItr.next() ; %>
-            <%  double time = (cEntry.getEndTime() - cEntry.getStartTime())/(double)1000 ; %>
+            <%  double time = cEntry.mergeDuration()/(double)1000 ; %>
             <%  if(time < 0) time = 0; %>
             <%  timeToGoThroughTutorial += time ; %>
             <%  counter++ ; %>
@@ -184,6 +191,7 @@
               <td></td>
               <td></td>
             <%}%>
+            <td><pre><%=formatNull(slot.getPlayerReport().getClientInfo())%></pre></td>
           </tr>
       <%}%>
     </table>
@@ -300,6 +308,11 @@
                Gender = <%=fb.getGender()%>;
                Native Language = <%=fb.getNativeLanguage()%>
             <%}%>
+          </div>
+
+          <div>
+            Client Info: 
+            <pre><%=formatNull(slot.getPlayerReport().getClientInfo())%></pre>
           </div>
         </div>
     <%}%>
