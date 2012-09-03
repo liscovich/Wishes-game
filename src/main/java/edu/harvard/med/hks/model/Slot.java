@@ -315,9 +315,10 @@ public class Slot extends AbstractTimestampEntity {
 	
 	public boolean isRewardCaughtAsBetrayal() { return rewardCaughtAsBetrayal; }
 	
-	public boolean isSurvival() { return survival; }
-	
-	public void setAssignmentId(String assignmentId) { this.assignmentId = assignmentId; }
+	public void setAssignmentId(String assignmentId) { 
+		if(assignmentId == null) assignmentId = "" ;
+		this.assignmentId = assignmentId; 
+	}
 	
 	public void setBetrayCaught(boolean betrayCaught) { this.betrayCaught = betrayCaught; }
 	
@@ -335,7 +336,10 @@ public class Slot extends AbstractTimestampEntity {
 	
 	public void setGame(Game game) { this.game = game ;}
 	
-	public void setHitId(String hitId) { this.hitId = hitId; }
+	public void setHitId(String hitId) { 
+		if(hitId == null) hitId = "" ;
+		this.hitId = hitId; 
+	}
 	
 	public void setInitTempteeBonus(int initTempteeBonus) { this.initTempteeBonus = initTempteeBonus; }
 	
@@ -359,6 +363,7 @@ public class Slot extends AbstractTimestampEntity {
 	
 	public void setStatus(String status) { this.status = status; }
 	
+	public boolean isSurvival() { return survival; }
 	public void setSurvival(boolean survival) { this.survival = survival; }
 	
 	public void setSurvivalSampling(double survivalSampling) {
@@ -485,6 +490,7 @@ public class Slot extends AbstractTimestampEntity {
 		private int  anotherRound ;
 		private int  remainingWishes ;
 		private int  balance ;
+		private String clientIp ;
 		
 		public String getId() { return id ; }
 		public void   setId(String id) { this.id = id ; }
@@ -521,6 +527,9 @@ public class Slot extends AbstractTimestampEntity {
 		
 		public int getBalance() { return balance; }
 		public void setBalance(int balance) { this.balance = balance; }
+	
+		public String getClientIp() { return this.clientIp ; }
+		public void   setClientIp(String ip) { this.clientIp = ip ; }
 	}
 	
 	static public class TutorialReport {

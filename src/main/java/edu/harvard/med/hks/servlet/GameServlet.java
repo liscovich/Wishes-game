@@ -36,29 +36,10 @@ public class GameServlet extends HttpServlet {
 			return;
 		}
 
-		//int points = (!StringUtils.isEmpty(req.getParameter("points")))?Integer.parseInt(req.getParameter("points")):0;
-		//boolean isNext = (!StringUtils.isEmpty(req.getParameter("next")))?Boolean.valueOf(req.getParameter("next")) : false;
-		//if (isNext && points > 0){
-		//	String slotId = req.getParameter("slotId");
-		//	Slot slot = hksGameService.getSlotDao().getByProperty("slotId",	slotId).get(0);
-		//	slot.setStatus(Status.OCCUPIED.toString());
-		//	slot.setSurvival(true);
-		//	slot.setBlackMarkCount(0);
-		//	try {
-		//		hksGameService.getSlotDao().update(slot);
-		//	} catch (GeneralException e) {
-		//		e.printStackTrace();
-		//	}
-		//	resp.sendRedirect(req.getRequestURL().toString());
-		//}
-
 		try {
-			Slot slot = hksGameService.findEmptySlotForWorker(gameId, req.getParameter("workerId"));
-			//String slotId = hksGameService.getEmptySlotId(gameId, req.getParameter("workerId"));
+			Slot slot = hksGameService.findEmptySlotForWorker(gameId, req.getParameter("workerId"), req);
 			String slotId = null ;
-			if(slot != null) {
-				slotId = slot.getSlotId() ;
-			}
+			if(slot != null) slotId = slot.getSlotId() ;
 			if (slotId == null) {
 				PrintWriter out = resp.getWriter();
 				out.println("Game is full");
@@ -67,7 +48,7 @@ public class GameServlet extends HttpServlet {
 				if(!StringUtils.isEmpty(req.getParameter("workerId"))) {
 					url += "&workerId=" + URLEncoder.encode(req.getParameter("workerId"), "UTF-8");
 				}
-				if (!StringUtils.isEmpty(req.getParameter("assignmentId"))) {
+				if(!StringUtils.isEmpty(req.getParameter("assignmentId"))) {
 					url += "&assignmentId=" + URLEncoder.encode(req.getParameter("assignmentId"), "UTF-8");
 				}
 				if (!StringUtils.isEmpty(req.getParameter("turkSubmitTo"))) {

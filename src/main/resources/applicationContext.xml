@@ -21,7 +21,8 @@
 		p:driverClassName="${jdbc.driverClassName}" 
 		p:url="${jdbc.url}" 
 		p:username="${jdbc.username}"
-		p:password="${jdbc.password}" />
+		p:password="${jdbc.password}"
+		p:maxActive="15" />
 
 	<bean id="sessionFactory" class="edu.harvard.med.hks.bean.CustomSessionFactoryBean">
 		<property name="dataSource" ref="dataSource" />

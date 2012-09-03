@@ -888,7 +888,13 @@ function($){
       if(!obj.returnData.lastGameForPlayer) {
         $('#play_again').click(function(){
           //var url = window.location.href+'&points='+obj.tempteeBonus+'&next=true';
-          var url = 'game?gameId='+obj.gameId+'&workerId=' + obj.workerId;
+          var url = 'game?gameId=' + obj.gameId + '&workerId=' + obj.workerId ;
+          if(obj.hitId != '') {
+            url += '&hitId=' + obj.hitId ;
+          }
+          if(obj.assignmentId != '') {
+            url += '&assignmentId=' + obj.assignmentId ;
+          }
           window.location.href = url;
           //obj.isNext = "true";
         });

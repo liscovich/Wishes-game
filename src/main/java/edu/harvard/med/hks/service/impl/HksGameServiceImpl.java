@@ -166,7 +166,7 @@ public class HksGameServiceImpl implements HksGameService {
 		return result;
 	}
 	
-	public Slot findEmptySlotForWorker(String gameId, String workerId) throws GeneralException {
+	synchronized public Slot findEmptySlotForWorker(String gameId, String workerId, HttpServletRequest req) throws GeneralException {
 		/*
 		 1. user/player/worker enters the game through the url with two appended parameters: gameid, and workerid
 		 2. the server assigns them a new slot and appends the slot id to the URL of the player
@@ -181,6 +181,7 @@ public class HksGameServiceImpl implements HksGameService {
 		 8. when they play the last allowed game, at the end of the game, the button "play again" does not appear
 		 */
 		if (StringUtils.isEmpty(workerId)) return null;
+		
 		List<Game> byProperty = hksGameDao.getByProperty("gameId", gameId);
 		if (byProperty.isEmpty()) return null;
 		Game game = byProperty.get(0);
@@ -193,9 +194,9 @@ public class HksGameServiceImpl implements HksGameService {
 	  List<Slot> workerPlayedSlots = new ArrayList<Slot>() ;
 	  for(int i = 0; i < slots.size(); i++) {
 	  	Slot slot = slots.get(i);
-	  	if(Slot.Status.INIT.toString().equals(slot.getStatus())) {
+	  	if(StringUtils.isEmpty(slot.getWorkerId())) {
 	  		freeSlots.add(slot) ;
-	  	} else if(slot.getWorkerId().equals(workerId)) {
+	  	} else if(workerId.equals(slot.getWorkerId())) {
 	  		workerPlayedSlots.add(slot) ;
 	  	}
 	  }
@@ -207,7 +208,29 @@ public class HksGameServiceImpl implements HksGameService {
 		} else {
 			slot.setStatus(Status.PLAY.toString());
 		}
+		slot.setWorkerId(workerId) ;
+		slot.setAssignmentId(req.getParameter("assignmentId"));
+		slot.setHitId(req.getParameter("hitId"));
+		if(req.getParameter("workerNum") != null) {
+	  	slot.setWorkerNumber(req.getParameter("workerNum"));
+		}
+		if(req.getParameter("turkSubmitTo") != null) {
+		  slot.setTurkSubmitTo(req.getParameter("turkSubmitTo"));
+		}
 		slot.setWorkerPlayTracker(workerPlayedSlots.size() + 1) ;
+		
+		appendLog(slot, getClientInfo(req));
+	  appendLog(slot, "Game Id: " + slot.getGame().getGameId()) ;
+	  appendLog(slot, "Slot Id: " + slot.getSlotId()) ;
+		appendLog(slot, "Worker Id: " + slot.getWorkerId()) ;
+		appendLog(slot, "Assignment Id: " + slot.getAssignmentId()) ;
+		appendLog(slot, "Hit Id: " + slot.getHitId()) ;
+		
+		Slot.PlayerReport pReport = slot.getPlayerReport() ;
+		pReport.setClientInfo(getClientInfo(req)) ;
+		slot.setPlayerReport(pReport) ;
+		
+		slotDao.update(slot);
 		return slot;
 	}
 	
@@ -268,6 +291,7 @@ public class HksGameServiceImpl implements HksGameService {
 			roundReport.setBetrayPayoff(slot.getCurrentBetrayPayoff() - roundReport.getLowPayoff()) ;
 			roundReport.setHighPayoff(slot.getCurrentBetrayPayoff());
 			roundReport.setStatus(slot.getStatus()) ;
+			roundReport.setClientIp(req.getRemoteAddr()) ;
 			slot.setPlayerReport(pReport) ;
 			slotDao.update(slot);
 		} else {
@@ -466,15 +490,11 @@ public class HksGameServiceImpl implements HksGameService {
 		
 		boolean init = slot.getStatus().equals(Status.INIT.toString()) ;
 		boolean tutorial = slot.getStatus().equals(Status.TUTORIAL.toString()) ;
+
 		if(init) {
 			slot.setStatus(Status.TUTORIAL.toString());
 			slot.setTempteeBonus(slot.getInitTempteeBonus());
 			samplingNewRound(slot);
-			
-			appendLog(slot, getClientInfo(req));
-			Slot.PlayerReport pReport = slot.getPlayerReport() ;
-			pReport.setClientInfo(getClientInfo(req)) ;
-			slot.setPlayerReport(pReport) ;
 		}
 		
 		if(slot.getStatus().equals(Status.PLAY.toString())) {
@@ -485,32 +505,6 @@ public class HksGameServiceImpl implements HksGameService {
 			slot.setTutorialStep(Integer.parseInt(req.getParameter("tutorialStep")));
 		}
 		
-		if (StringUtils.isEmpty(slot.getAssignmentId()) && !StringUtils.isEmpty(req.getParameter("assignmentId"))) {
-			slot.setAssignmentId(req.getParameter("assignmentId"));
-		}
-		
-		if (StringUtils.isEmpty(slot.getWorkerId()) && !StringUtils.isEmpty(req.getParameter("workerId"))) {
-			slot.setWorkerId(req.getParameter("workerId"));
-		}
-		
-		if (StringUtils.isEmpty(slot.getWorkerNumber()) && !StringUtils.isEmpty(req.getParameter("workerNum"))) {
-			slot.setWorkerId(req.getParameter("workerNum"));
-		}
-		
-		if (StringUtils.isEmpty(slot.getTurkSubmitTo()) && !StringUtils.isEmpty(req.getParameter("turkSubmitTo"))) {
-			slot.setTurkSubmitTo(req.getParameter("turkSubmitTo"));
-		}
-		
-		if (StringUtils.isEmpty(slot.getHitId()) && !StringUtils.isEmpty(req.getParameter("hitId"))) {
-			slot.setHitId(req.getParameter("hitId"));
-		}
-		if(slot.getLog() == null) {
-			appendLog(slot, "Game Id: " + slot.getGame().getGameId()) ;
-			appendLog(slot, "Slot Id: " + slot.getSlotId()) ;
-			appendLog(slot, "Worker Id: " + slot.getWorkerId()) ;
-			appendLog(slot, "Assignment Id: " + slot.getAssignmentId()) ;
-			appendLog(slot, "Hit Id: " + slot.getHitId()) ;
-		}
 	  //Log init a new round
 		//slot.setPlayerReportJson(null) ;
 		
@@ -521,6 +515,7 @@ public class HksGameServiceImpl implements HksGameService {
 			roundReport.setBetrayPayoff(slot.getCurrentBetrayPayoff() - roundReport.getLowPayoff()) ;
 			roundReport.setHighPayoff(slot.getCurrentBetrayPayoff());
 			roundReport.setStatus(slot.getStatus()) ;
+			roundReport.setClientIp(req.getRemoteAddr()) ;
 			slot.setPlayerReport(pReport) ;
 		}
 		slotDao.update(slot);

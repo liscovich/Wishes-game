@@ -17,7 +17,7 @@ public interface HksGameService {
 	
 	Map<String, Object> finishPractice(HttpServletRequest req) throws GeneralException;
 	
-	Slot findEmptySlotForWorker(String gameId, String workerId) throws GeneralException;
+	Slot findEmptySlotForWorker(String gameId, String workerId, HttpServletRequest req) throws GeneralException;
 
 	Map<String, Object> payoffAck(HttpServletRequest req) throws GeneralException ;
 

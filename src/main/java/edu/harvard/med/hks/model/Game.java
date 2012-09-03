@@ -75,80 +75,55 @@ public class Game extends AbstractTimestampEntity {
 	
 	public String getGameId() { return gameId; }
 	
-	public int getMaxBetrayPayoff() {
-		return maxBetrayPayoff;
-	}
-	public void setMaxBetrayPayoff(int maxBetrayPayoff) {
-		this.maxBetrayPayoff = maxBetrayPayoff;
-	}
-	public int getRewardPayoff() {
-		return rewardPayoff;
-	}
-	public void setRewardPayoff(int rewardPayoff) {
-		this.rewardPayoff = rewardPayoff;
-	}
-	public double getBetrayCaughtChance() {
-		return betrayCaughtChance;
-	}
+	public int getMaxBetrayPayoff() { return maxBetrayPayoff; }
+	public void setMaxBetrayPayoff(int maxBetrayPayoff) { this.maxBetrayPayoff = maxBetrayPayoff;}
+	
+	public int getRewardPayoff() { return rewardPayoff; }
+	public void setRewardPayoff(int rewardPayoff) { this.rewardPayoff = rewardPayoff; }
+	
+	public double getBetrayCaughtChance() { return betrayCaughtChance; }
+	
 	public void setBetrayCaughtChance(double betrayCaughtChance) {
 		this.betrayCaughtChance = betrayCaughtChance;
 	}
-	public int getNumberOfGameSlot() {
-		return numberOfGameSlot;
-	}
-	public double getRewardCaughtAsBetrayalChance() {
-		return rewardCaughtAsBetrayalChance;
-	}
-	public List<Slot> getSlots() {
-		return slots;
-	}
-	public double getTempteeSurvivalChance() {
-		return tempteeSurvivalChance;
-	}
-	public void setBlackMarkUpperLimit(int blackMarkUpperLimit) {
-		this.blackMarkUpperLimit = blackMarkUpperLimit;
-	}
-	public void setGameId(String gameId) {
-		this.gameId = gameId;
-	}
+	
+	public int getNumberOfGameSlot() { return numberOfGameSlot; }
+	
+	public double getRewardCaughtAsBetrayalChance() { return rewardCaughtAsBetrayalChance; }
+	
+	public List<Slot> getSlots() { return slots;}
+	public double getTempteeSurvivalChance() { return tempteeSurvivalChance;}
+	
+	public void setBlackMarkUpperLimit(int blackMarkUpperLimit) { this.blackMarkUpperLimit = blackMarkUpperLimit;}
+	
+	public void setGameId(String gameId) { this.gameId = gameId; }
+	
 	public void setNumberOfGameSlot(int numberOfGameSlot) {
 		this.numberOfGameSlot = numberOfGameSlot;
 	}
+
 	public void setRewardCaughtAsBetrayalChance(double rewardCaughtAsBetrayalChance) {
 		this.rewardCaughtAsBetrayalChance = rewardCaughtAsBetrayalChance;
 	}
-	public void setSlots(List<Slot> slots) {
-		this.slots = slots;
-	}
+	
+	public void setSlots(List<Slot> slots) { this.slots = slots; }
 	public void setTempteeSurvivalChance(double tempteeSurvivalChance) {
 		this.tempteeSurvivalChance = tempteeSurvivalChance;
 	}
 	
 	public int getInitialTrusterBonus() { return initialTrusterBonus; }
-	public void setInitialTrusterBonus(int initialTrusterBonus) {
-		this.initialTrusterBonus = initialTrusterBonus;
-	}
+	public void setInitialTrusterBonus(int initialTrusterBonus) { this.initialTrusterBonus = initialTrusterBonus; }
 	
 	public float getFeedbackBonus() { return this.feedbackBonus ; }
 	public void  setFeedbackBonus(float fbBonus) { this.feedbackBonus = fbBonus ;}
 	
 	public float getExchangeRate() { return exchangeRate; }
-	public void setExchangeRate(float exchangeRate) {
-		this.exchangeRate = exchangeRate;
-	}
+	public void setExchangeRate(float exchangeRate) { this.exchangeRate = exchangeRate; }
 	
-	public int getBetrayalCost() {
-		return betrayalCost;
-	}
-	public void setBetrayalCost(int betrayalCost) {
-		this.betrayalCost = betrayalCost;
-	}
-	public int getMaxRoundsNum() {
-		return maxRoundsNum;
-	}
-	public void setMaxRoundsNum(int maxRoundsNum) {
-		this.maxRoundsNum = maxRoundsNum;
-	}
+	public int getBetrayalCost() { return betrayalCost; }
+
+	public void setBetrayalCost(int betrayalCost) { this.betrayalCost = betrayalCost; }
 	
-	
+	public int getMaxRoundsNum() { return maxRoundsNum; }
+	public void setMaxRoundsNum(int maxRoundsNum) { this.maxRoundsNum = maxRoundsNum; }
 }

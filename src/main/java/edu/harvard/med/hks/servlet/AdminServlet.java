@@ -17,7 +17,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.google.gson.Gson;
 
-import edu.harvard.med.hks.model.Feedback;
 import edu.harvard.med.hks.model.Game;
 import edu.harvard.med.hks.model.Slot;
 import edu.harvard.med.hks.server.GeneralException;
@@ -34,7 +33,10 @@ public class AdminServlet extends HttpServlet {
 		try {
 			if("gameReport".equals(action)) {
 				String gameId = req.getParameter("gameId") ;
+				Game game = adminService.getGame(gameId) ;
 				List<Slot> slots = adminService.findGameSlots(gameId) ;
+				//List<Slot> slots = game.getSlots() ;
+				req.setAttribute("game", game) ;
 				req.setAttribute("gameSlots", slots) ;
 				req.setAttribute("service", adminService) ;
 				req.getRequestDispatcher("GameReport.jsp").forward(req, resp) ;
