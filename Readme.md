@@ -1,17 +1,19 @@
-Instructions to install the hcplab games
+#Instructions to install the hcplab games#
 
-1. Install the linux environment
+##Install the linux environment##
 
-1.1 Install the mysql
+###Install the mysql###
 
   Install MYSQL: 
   ```bash     
-    sudo apt-get install mysql-server
-    #You will need to enter a new password for the root user.
+  sudo apt-get install mysql-server
+  #You will need to enter a new password for the root user.
   ```
   When the installation is finished. Verify the the mysql server:
     
-    mysql -u root -proot
+  ```bash     
+  mysql -u root -proot
+  ```
   
   In the mysql client shell, enter the command:
     
@@ -21,17 +23,21 @@ Instructions to install the hcplab games
   
   To manually start/stop the mysql server:
   
+  ```bash     
       sudo /etc/init.d/mysql start (to start the server)
     
       sudo /etc/init.d/mysql stop (to stop the server)
     
       sudo /etc/init.d/mysql restart (to stop and then start the server)
+  ```
 
-1.2 Install the appache server
+###Install the appache server###
 
   Install the apache server:
   
+  ```bash     
        apt-get install apache2
+  ```
    
   To verify the apache installation enter the hostname of ip of the server into the browser address bar
 
@@ -40,13 +46,13 @@ Instructions to install the hcplab games
   
   Maybe by default, the linux or window operating system will block the port 80. Check and make sure your OS security setting is properly configured.
 
-1.3 Install JAVA and JDK
+###Install JAVA and JDK###
   
   You can either download the jdk from http://www.oracle.com/technetwork/java/javase/downloads/index.html or use the apt-get command to install
   
     apt-get install openjdk-7-jdk
 
-1.4 Install the tomcat server
+###Install the tomcat server###
   
   Download the latest tomcat server version from:
     
@@ -147,7 +153,7 @@ Instructions to install the hcplab games
     su cp apache-tomcat-7.0.35.tar.gz /opt
     su tar -zxvf apache-tomcat-version.tar.gz
 
-1.5 Build and Deploy Wishes-Game
+###Build and Deploy Wishes-Game###
 
   Checkout the Wishes-Game from githup repogitory
   
@@ -187,7 +193,7 @@ Instructions to install the hcplab games
   
     #To check if the game in launched properly, open the browser, enter http://hostname:8080/hks/admin_0982347509238477.html
 
-1.7 Configure tomcat and apache server
+###Configure tomcat and apache server###
 
   Make sure that mod_jk is installed. 
     #Check to see if the mod_jk is installed
