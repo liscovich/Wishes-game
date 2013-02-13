@@ -4,13 +4,12 @@ Instructions to install the hcplab games
 
 1.1 Install the mysql
 
-  * Install MYSQL: 
+  Install MYSQL: 
      
-   sudo apt-get install mysql-server
+    sudo apt-get install mysql-server
+    #You will need to enter a new password for the root user.
   
-  * You will need to enter a new password for the root user.
-  
-  * When the installation is finished. Verify the the mysql server:
+  When the installation is finished. Verify the the mysql server:
     
     mysql -u root -proot
   
@@ -20,42 +19,44 @@ Instructions to install the hcplab games
     
     show tables (You should see a list of table of the mysql database).
   
-  * To manually start/stop the mysql server:
+  To manually start/stop the mysql server:
   
       sudo /etc/init.d/mysql start (to start the server)
     
-    sudo /etc/init.d/mysql stop (to stop the server)
+      sudo /etc/init.d/mysql stop (to stop the server)
     
-    sudo /etc/init.d/mysql restart (to stop and then start the server)
+      sudo /etc/init.d/mysql restart (to stop and then start the server)
 
 1.2 Install the appache server
-  * Install the apache server:
+
+  Install the apache server:
   
        apt-get install apache2
    
-  * To verify the apache installation enter the hostname of ip of the server into the browser address bar
+  To verify the apache installation enter the hostname of ip of the server into the browser address bar
+
     http://ip  or http://hostname
-  You should see the message "It works!" 
+    #You should see the message "It works!" 
   
-  * Maybe by default, the linux or window operating system will block the port 80. Check and make sure your OS security setting is properly configured.
+  Maybe by default, the linux or window operating system will block the port 80. Check and make sure your OS security setting is properly configured.
 
 1.3 Install JAVA and JDK
   
-  * You can either download the jdk from http://www.oracle.com/technetwork/java/javase/downloads/index.html or use the apt-get command to install
+  You can either download the jdk from http://www.oracle.com/technetwork/java/javase/downloads/index.html or use the apt-get command to install
   
-  apt-get install openjdk-7-jdk
+    apt-get install openjdk-7-jdk
 
 1.4 Install the tomcat server
   
-  * Download the latest tomcat server version from:
+  Download the latest tomcat server version from:
     
     http://tomcat.apache.org
   
-  * Upload the tomcat package to the server:
+  Upload the tomcat package to the server:
   
     scp apache-tomcat-version.tar.gz username@hostname:~/
   
-  * Install the tomcat server:
+  Install the tomcat server:
     
     #Usually the optional package are installed in the /opt directory.
     cp apache-tomcat-version.tar.gz /opt
@@ -66,7 +67,7 @@ Instructions to install the hcplab games
     #Rename the tomcat directory name, to make the name shorter
     mv apache-tomcat-version tomcat-version
   
-  * Verify the tomcat server:
+  Verify the tomcat server:
     #Change to tomcat bin directory
     cd /opt/tomcat-version/bin
     
@@ -79,9 +80,10 @@ Instructions to install the hcplab games
   
   You should see this message "If you're seeing this, you've successfully installed Tomcat. Congratulations!"
   
-  * Start the tomcat server automatically when the os start or restart
+  Start the tomcat server automatically when the os start or restart
     #Create the the tomcat.sh file in the /etc/init.d directory.
     vi /etc/init.d/tomcat.sh
+
     #You can find this script githup repository in game-name/src/main/tomcat/tomcat.sh
     #The script should have:
     
@@ -140,49 +142,50 @@ Instructions to install the hcplab games
 
     exit 0
 
-  * If you do not change to super user, you will need to add su to run the command in the super user mode. For exampple:
+  If you do not change to super user, you will need to add su to run the command in the super user mode. For exampple:
   
     su cp apache-tomcat-7.0.35.tar.gz /opt
     su tar -zxvf apache-tomcat-version.tar.gz
 
 1.5 Build and Deploy Wishes-Game
 
-  * Checkout the Wishes-Game from githup repogitory
+  Checkout the Wishes-Game from githup repogitory
   
-  git clone git@github.com:liscovich/Wishes-game.git
+    git clone git@github.com:liscovich/Wishes-game.git
   
-  * Build the Whishes-Game:
+  Build the Whishes-Game:
   
-  #Go to the Whishes-Game directory
-  cd /path/to/Whishes-Game
+    #Go to the Whishes-Game directory
+    cd /path/to/Whishes-Game
   
-  #Build the Whishes-Game with maven
-  mvn clean install 
-  #The build process should produce a hks.war file in the target directory
+    #Build the Whishes-Game with maven
+    mvn clean install 
+    #The build process should produce a hks.war file in the target directory
   
-  #Copy the hks.war to the deployed server
-  scp target/hks.war username@hostname:~/
+  Copy the game to the deployed server and run
+    #Copy the hks.war to the deployed server
+    scp target/hks.war username@hostname:~/
   
-  #Copy the ddl.sql to the deployed server. This ddl.sql is used to create the hks user and hks tables
-  scp src/main/resources/ddl.sql username@hostname:~/
+    #Copy the ddl.sql to the deployed server. This ddl.sql is used to create the hks user and hks tables
+    scp src/main/resources/ddl.sql username@hostname:~/
   
-  #Login to the deployed server
-  ssh username@hostname
+    #Login to the deployed server
+    ssh username@hostname
   
-  #Deploy the hks.war to tomcat
-  cp hks.war /opt/tomcat-version/webapps
+    #Deploy the hks.war to tomcat
+    cp hks.war /opt/tomcat-version/webapps
   
-  #For the first time and every time you update the hks database structure, you need to run the ddl.sql script again
-  #Open the ddl.sql to see what the script does and some time you need to comment out the create user , create #database instructions 
-  mysql -u root -proot < ddl.sql
+    #For the first time and every time you update the hks database structure, you need to run the ddl.sql script again
+    #Open the ddl.sql to see what the script does and some time you need to comment out the create user , create #database instructions 
+    mysql -u root -proot < ddl.sql
   
-  #Go to the tomcat directory
-  cd /opt/tomcat-version/bin
+    #Go to the tomcat directory
+    cd /opt/tomcat-version/bin
   
-  #Launch tomcat in console mode
-  ./catalina.sh run
+    #Launch tomcat in console mode
+    ./catalina.sh run
   
-  #To check if the game in launched properly, open the browser, enter http://hostname:8080/hks/admin_0982347509238477.html
+    #To check if the game in launched properly, open the browser, enter http://hostname:8080/hks/admin_0982347509238477.html
 
 1.7 Configure tomcat and apache server
 
