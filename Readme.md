@@ -183,7 +183,8 @@
     cp hks.war /opt/tomcat-version/webapps
   
     #For the first time and every time you update the hks database structure, you need to run the ddl.sql script again
-    #Open the ddl.sql to see what the script does and some time you need to comment out the create user , create #database instructions 
+    #Open the ddl.sql to see what the script does and some time you need to comment out the create user , 
+    #create database instructions 
     mysql -u root -proot < ddl.sql
   
     #Go to the tomcat directory
