@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<title>Administration</title>
+<link rel="StyleSheet" href="css/hks.css"/>
+<script type="text/javascript" language="javascript" src="js/jquery-1.5.2.min.js"></script>
+<script type="text/javascript" language="javascript" src="js/hks_admin.js?t=<%= new java.util.Date().getTime() %>"></script>
+<script type="text/javascript" language="javascript" src="js/util.js?t=<%= new java.util.Date().getTime() %>"></script>
+</head>
+
+<body>
+<div id="errorMessage" style='visibility:hidden;height:20px;'></div> 
+<div>
+  <table id="gameTable" class="infoTable" width="100%">
+    <tr height='60'>
+      <td>Game ID</td>
+      <td>Number of game slots</td>
+      <td>Max Betrayal Payoff</td>
+      <td>Reward Payoff</td>
+      <td>Initial Truster Bonus</td>
+      <td>Chance of black mark for Betrayal</td>
+      <td>Chance of black mark for Reward</td>
+      <td>Betrayal Cost</td>
+      <td>Survival (0-1)</td>
+      <td>Black Mark Threshold</td>
+      <td>Init Temptee Bonus</td>
+      <td>Exchange rate</td>
+      <td>Feedback Bonus</td>
+      <td>Max Number of Games</td>
+      <td width='110'></td>
+    </tr>
+    <tr>
+      <td><input id="gameId" onfocus='this.value = generateGameID();' style='width:8em;'></input></td>
+      <td><input id="numberOfGameSlot" style='width:8em;' value='10'></input></td>
+      <td><input id="maxBetrayPayoff" style='width:8em;' value='20'></input></td>
+      <td><input id="rewardPayoff" style='width:8em;' value='10'></input></td>
+      
+      <td><input id="initialTrusterBonus" style='width:8em;' value='100'></input></td>
+      
+      <td><input id="betrayCaughtChance" style='width:8em;' value='1'></input></td>
+      <td><input id="rewardCaughtAsBetrayalChance" style='width:8em;' value='0'></input></td>
+      
+      <td><input id="betrayalCost" style='width:8em;' value='5'></input></td>
+      
+      <td><input id="tempteeSurvivalChance" style='width:8em;' value='.9'></input></td>
+      <td><input id="blackMarkUpperLimit" style='width:8em;' value='5'></input></td>
+      <td><input id="initTempteeBonus" style='width:8em;' value='100'></input></td>
+      
+      <td><input id="exchangeRate" style='width:8em;' value='0.01'></input></td>
+      <td><input id="feedbackBonus" style='width:8em;' value='0.05'></input></td>
+      <td><input id="maxRoundsNum" style='width:8em;' value='3'></input></td>
+      <td><input id="prepareServer" type="button" value="New Game"/></td>
+    </tr>
+  </table>
+</div>
+<div id='watch' style='display:none;'>
+	<div id='slots' style='padding-top:10px;'>
+		<table id="slotTable" class="infoTable" width="100%">
+			<tr height='60'>
+				<td>Slot No.</td>
+				<td>Status</td>
+				<td>Worker No.</td>
+				<td>Worker ID</td>
+				<td>Black mark</td>
+				<td>Bonus</td>
+				<td>Current Payoff for Betraying</td>
+				<td>Last action</td>
+				<td>Reward Caught as Betrayal</td>
+				<td>Betrayal Caught</td>
+				<td>Survive to Next Round</td>
+				<td width='110'></td>
+			</tr>
+		</table>
+	</div>
+	<div id='slot' style='display:none;'>
+		<div style='font-size:16px;font-weight:bold;margin:10px 0;color:#444444;' id='reportUrl'>Log</div>
+		<pre id="report" style="margin:0;height: 500px; width: 90%; overflow: auto;border:1px solid #444444;"></pre>
+
+		<div style='font-size:16px;font-weight:bold;margin:10px 0;color:#444444;' id='reportUrl'>Report</div>
+		<pre id="roundReport" style="margin:0;height: 500px; width: 90%; overflow: auto;border:1px solid #444444;"></pre>
+	</div>
+</div>
+</body>
+</html>
