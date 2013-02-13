@@ -5,10 +5,10 @@ Instructions to install the hcplab games
 1.1 Install the mysql
 
   Install MYSQL: 
-     
+  ```bash     
     sudo apt-get install mysql-server
     #You will need to enter a new password for the root user.
-  
+  ```
   When the installation is finished. Verify the the mysql server:
     
     mysql -u root -proot
