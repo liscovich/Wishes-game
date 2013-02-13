@@ -186,7 +186,7 @@ Instructions to install the hcplab games
 
 1.7 Configure tomcat and apache server
 
-  * Make sure that mod_jk is installed. 
+  Make sure that mod_jk is installed. 
     #Check to see if the mod_jk is installed
     ls /etc/apache2/mods-available/jk.*
     #You should see the file jk.load and jk.conf
@@ -194,7 +194,7 @@ Instructions to install the hcplab games
     #If the mod_jk is not installed yet. Install it with the apt-get command
     apt-get install libapache2-mod-jk
   
-  * Change the apache configuration
+  Change the apache configuration
   
     #Open the file /etc/apache2/mods-available/jk.conf
     #Change:
@@ -216,13 +216,13 @@ Instructions to install the hcplab games
       worker.loadbalancer.type=lb
       worker.loadbalancer.balance_workers=ajp13_worker
   
-  * Enable mod_jk configurations: 
+  Enable mod_jk configurations: 
     #Create a link in /etc/apache2/mods-enabled/jk.conf which points to /etc/apache2/mods-available/jk.conf. 
     #This will enable mod_jk configuration in apache when apache is restarted.
     ln -s /etc/apache2/mods-available/jk.conf /etc/apache2/mods-enabled/jk.conf
     ln -s /etc/apache2/mods-available/jk.load /etc/apache2/mods-enabled/jk.load
   
-  * Configure url forwarding in apache to tomcat: Put the following lines in you apache virtualhost to forward requests to tomcat.
+  Configure url forwarding in apache to tomcat: Put the following lines in you apache virtualhost to forward requests to tomcat.
   
     <VirtualHost *:80>
       ...
@@ -236,7 +236,7 @@ Instructions to install the hcplab games
       ...
     </VirtualHost>
     
-  * Configure AJP in tomcat server. Make sure the following line in $TOMCAT_HOME/conf/server.xml file under the Servies tag.
+  Configure AJP in tomcat server. Make sure the following line in $TOMCAT_HOME/conf/server.xml file under the Servies tag.
   
     <Service name="Catalina">
       ...
@@ -245,7 +245,7 @@ Instructions to install the hcplab games
       ...
     </Service>
   
-  *Restart the apache server for the new configuration
+  Restart the apache server for the new configuration
   
     #Restart the apache server
     /etc/init.d/apache2 restart
