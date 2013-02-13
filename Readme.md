@@ -169,6 +169,7 @@
     #The build process should produce a hks.war file in the target directory
   
   Copy the game to the deployed server and run
+
     #Copy the hks.war to the deployed server
     scp target/hks.war username@hostname:~/
   
